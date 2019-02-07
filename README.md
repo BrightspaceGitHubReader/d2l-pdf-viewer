@@ -1,23 +1,23 @@
-# d2l-file-viewer
-[![Build Status](https://travis-ci.com/Brightspace/d2l-file-viewer.svg?branch=master)](https://travis-ci.com/Brightspace/d2l-file-viewer)
+# d2l-pdf-viewer
+[![Build Status](https://travis-ci.com/Brightspace/d2l-pdf-viewer.svg?branch=master)](https://travis-ci.com/Brightspace/d2l-pdf-viewer)
 
 
 
 ## Installation
 
-`d2l-file-viewer` can be installed from [Bower][bower-url]:
+`d2l-pdf-viewer` can be installed from [Bower][bower-url]:
 ```shell
-bower install d2l-file-viewer
+bower install d2l-pdf-viewer
 ```
 
 ## Usage
 
-Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill (for browsers who don't natively support web components), then import `d2l-file-viewer.html`:
+Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill (for browsers who don't natively support web components), then import `d2l-pdf-viewer.html`:
 
 ```html
 <head>
 	<script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-	<link rel="import" href="bower_components/d2l-file-viewer/d2l-file-viewer.html">
+	<link rel="import" href="bower_components/d2l-pdf-viewer/d2l-pdf-viewer.html">
 </head>
 ```
 
@@ -27,7 +27,7 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill (fo
   <template>
     <script src="../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="../d2l-typography/d2l-typography.html">
-    <link rel="import" href="d2l-file-viewer.html">
+    <link rel="import" href="d2l-pdf-viewer.html">
     <custom-style include="d2l-typography">
       <style is="custom-style" include="d2l-typography"></style>
     </custom-style>
@@ -43,7 +43,7 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill (fo
 ```
 -->
 ```html
-<d2l-file-viewer>My element</d2l-file-viewer>
+<d2l-pdf-viewer>My element</d2l-pdf-viewer>
 ```
 
 ## Developing, Testing and Contributing
