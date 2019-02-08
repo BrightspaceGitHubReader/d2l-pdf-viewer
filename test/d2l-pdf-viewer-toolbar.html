@@ -58,11 +58,9 @@
 					});
 
 					it('should render all elements correctly', function() {
-						for (const disabledType of ['disabled', 'ariaDisabled']) {
-							expect(toolbar.$.zoomOutButton[disabledType]).to.be.false;
-							expect(toolbar.$.zoomInButton[disabledType]).to.be.false;
-							expect(toolbar.$.fullscreenButton[disabledType]).to.be.false;
-						}
+						expect(toolbar.$.zoomOutButton.disabled).to.be.false;
+						expect(toolbar.$.zoomInButton.disabled).to.be.false;
+						expect(toolbar.$.fullscreenButton.disabled).to.be.false;
 
 						expect(toolbar.$.pageNumber.textContent.trim()).to.equal('Page 4 / 10');
 					});
@@ -70,7 +68,7 @@
 					it('should disable the "zoom in" button when pageScale >= maxPageScale', function(done) {
 						toolbar.pageScale = toolbar.maxPageScale;
 						setTimeout(function() {
-							expect(toolbar.$.zoomInButton.ariaDisabled).to.be.true;
+							expect(toolbar.$.zoomInButton.disabled).to.be.true;
 							done();
 						});
 					});
@@ -78,7 +76,7 @@
 					it('should disable the "zoom out" button when pageScale <= minPageScale', function(done) {
 						toolbar.pageScale = toolbar.minPageScale;
 						setTimeout(function() {
-							expect(toolbar.$.zoomOutButton.ariaDisabled).to.be.true;
+							expect(toolbar.$.zoomOutButton.disabled).to.be.true;
 							done();
 						});
 					});
