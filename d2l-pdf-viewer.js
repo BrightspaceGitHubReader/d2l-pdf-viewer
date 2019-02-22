@@ -4,9 +4,6 @@ import 'fullscreen-api/fullscreen-api.js';
 import './d2l-pdf-viewer-toolbar.js';
 import './d2l-pdf-viewer-progress-bar.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
-import pdf, { LinkTarget } from 'pdfjs-dist-modules/pdf.js';
-import { PDFLinkService } from 'pdfjs-dist-modules/pdf_link_service.js';
-import { PDFViewer } from 'pdfjs-dist-modules/pdf_viewer.js';
 const $_documentContainer = document.createElement('template');
 
 $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer">
@@ -536,28 +533,57 @@ Polymer({
 		'_srcChanged(isAttached, src)'
 	],
 	ready: function() {
-		// Ensure that style scoping is applied to elements added by PDF.js
-		// under Shady DOM
-		this.scopeSubtree(this.$.viewerContainer, true);
+		this._boundListeners = false;
+		this._addedEventListeners = false;
+		// Import pdfjs separately to allow better code splitting
+		this._initializeTask = Promise.all([
+			import('pdfjs-dist-modules/pdf.js'),
+			import('pdfjs-dist-modules/pdf_link_service.js'),
+			import('pdfjs-dist-modules/pdf_viewer.js')
+		])
+			.then(([pdfImport, pdfLinkServiceImport, pdfViewerImport]) => {
+				const pdf = pdfImport.default;
+				const { LinkTarget } = pdfImport;
+				const { PDFLinkService } = pdfLinkServiceImport;
+				const { PDFViewer } = pdfViewerImport;
 
-		pdf.GlobalWorkerOptions.workerSrc =
-			this.pdfJsWorkerSrc || import.meta.url + '/../node_modules/pdfjs-dist-modules/pdf.worker.min.js';
+				this._pdf = pdf;
+				// Ensure that style scoping is applied to elements added by PDF.js
+				// under Shady DOM
+				this.scopeSubtree(this.$.viewerContainer, true);
 
-		// (Optionally) enable hyperlinks within PDF files.
-		this._pdfLinkService = new PDFLinkService({
-			externalLinkTarget: LinkTarget.BLANK
-		});
+				pdf.GlobalWorkerOptions.workerSrc =
+					this.pdfJsWorkerSrc || import.meta.url + '/../node_modules/pdfjs-dist-modules/pdf.worker.min.js';
 
-		this._pdfViewer = new PDFViewer({
-			container: this.$.viewerContainer,
-			linkService: this._pdfLinkService,
-			useOnlyCssZoom: true, // Use CSS zooming only, as default zoom rendering in (modularized?) pdfjs-dist is buggy
-		});
+				// (Optionally) enable hyperlinks within PDF files.
+				this._pdfLinkService = new PDFLinkService({
+					externalLinkTarget: LinkTarget.BLANK
+				});
 
-		this._pdfLinkService.setViewer(this._pdfViewer);
+				this._pdfViewer = new PDFViewer({
+					container: this.$.viewerContainer,
+					linkService: this._pdfLinkService,
+					useOnlyCssZoom: true, // Use CSS zooming only, as default zoom rendering in (modularized?) pdfjs-dist is buggy
+				});
 
-		// Add event listeners before loading document
+				this._pdfLinkService.setViewer(this._pdfViewer);
+
+				// Add event listeners before loading document
+				this._addEventListeners();
+
+				this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-initialized', {
+					bubbles: true,
+				}));
+			});
+	},
+	attached: function() {
 		this._addEventListeners();
+		if (!this._pdfViewer) {
+			const progressBar = this.$.progressBar;
+			progressBar.hidden = false;
+			progressBar.indeterminate = true;
+			progressBar.start();
+		}
 	},
 	detached: function() {
 		window.removeEventListener('resize', this._resize);
@@ -573,19 +599,28 @@ Polymer({
 		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
 		this.$.progressBar.removeEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
+
+		this._addedEventListeners = false;
 	},
 	_addEventListeners: function() {
-		this._onMouseEnter = this._onMouseEnter.bind(this); // don't add yet- just bind
-		this._resize = this._resize.bind(this);
-		this._onPagesInitEvent = this._onPagesInitEvent.bind(this);
-		this._onPageChangeEvent = this._onPageChangeEvent.bind(this);
-		this._onPrevPageEvent = this._onPrevPageEvent.bind(this);
-		this._onNextPageEvent = this._onNextPageEvent.bind(this);
-		this._onZoomInEvent = this._onZoomInEvent.bind(this);
-		this._onZoomOutEvent = this._onZoomOutEvent.bind(this);
-		this._onPageNumberChangedEvent = this._onPageNumberChangedEvent.bind(this);
-		this._onFullscreenEvent = this._onFullscreenEvent.bind(this);
-		this._onProgressAnimationCompleteEvent = this._onProgressAnimationCompleteEvent.bind(this);
+		if (!this._boundListeners) {
+			this._onMouseEnter = this._onMouseEnter.bind(this); // don't add yet- just bind
+			this._resize = this._resize.bind(this);
+			this._onPagesInitEvent = this._onPagesInitEvent.bind(this);
+			this._onPageChangeEvent = this._onPageChangeEvent.bind(this);
+			this._onPrevPageEvent = this._onPrevPageEvent.bind(this);
+			this._onNextPageEvent = this._onNextPageEvent.bind(this);
+			this._onZoomInEvent = this._onZoomInEvent.bind(this);
+			this._onZoomOutEvent = this._onZoomOutEvent.bind(this);
+			this._onPageNumberChangedEvent = this._onPageNumberChangedEvent.bind(this);
+			this._onFullscreenEvent = this._onFullscreenEvent.bind(this);
+			this._onProgressAnimationCompleteEvent = this._onProgressAnimationCompleteEvent.bind(this);
+			this._boundListeners = true;
+		}
+
+		if (this._addedEventListeners) {
+			return;
+		}
 
 		window.addEventListener('resize', this._resize);
 
@@ -600,8 +635,13 @@ Polymer({
 		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
 		this.$.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
+
+		this._addedEventListeners = true;
 	},
 	_resize: function() {
+		if (!this._pdfViewer) {
+			return;
+		}
 		if (!this._resizeThrottleHandle) {
 			this._resizeThrottleHandle = setTimeout(() => {
 				var currentScaleValue = this._pdfViewer.currentScaleValue;
@@ -625,7 +665,7 @@ Polymer({
 		}
 
 		const progressBar = this.$.progressBar;
-		let destroyLoadingTask = Promise.resolve();
+		let destroyLoadingTask = this._initializeTask;
 
 		this._resetPdfData();
 
@@ -640,7 +680,7 @@ Polymer({
 		this._setPdfNameFromUrl(src);
 
 		destroyLoadingTask.then(() => {
-			const loadingTask = this._loadingTask = pdf.getDocument({
+			const loadingTask = this._loadingTask = this._pdf.getDocument({
 				url: src
 			});
 
@@ -695,10 +735,14 @@ Polymer({
 		this._pageNumber = evt.pageNumber;
 	},
 	_onNextPageEvent: function() {
-		this._setPageNumber(this._pdfViewer.currentPageNumber + 1);
+		if (this._pdfViewer) {
+			this._setPageNumber(this._pdfViewer.currentPageNumber + 1);
+		}
 	},
 	_onPrevPageEvent: function() {
-		this._setPageNumber(this._pdfViewer.currentPageNumber - 1);
+		if (this._pdfViewer) {
+			this._setPageNumber(this._pdfViewer.currentPageNumber - 1);
+		}
 	},
 	_onZoomInEvent: function() {
 		this._addDeltaZoom(0.1);
@@ -709,6 +753,9 @@ Polymer({
 		this._onInteraction();
 	},
 	_onFullscreenEvent: function() {
+		if (!this._pdfViewer) {
+			return;
+		}
 		this.$.fsApi.toggleFullscreen();
 		this._onInteraction();
 
@@ -726,12 +773,15 @@ Polymer({
 		this._setPageNumber(newPage);
 	},
 	_addDeltaZoom: function(delta) {
+		if (!this._pdfViewer) {
+			return;
+		}
 		var newZoom = this._pdfViewer.currentScale + delta;
 
 		this._setScale(newZoom);
 	},
 	_setPageNumber: function(pageNumber) {
-		if (pageNumber < 1 || pageNumber > this._pagesCount) {
+		if (!this._pdfViewer || pageNumber < 1 || pageNumber > this._pagesCount) {
 			return;
 		}
 
@@ -739,6 +789,9 @@ Polymer({
 		this._pageNumber = pageNumber;
 	},
 	_setScale: function(newScale) {
+		if (!this._pdfViewer) {
+			return;
+		}
 		this._pdfViewer.currentScaleValue = Math.max(
 			this.minPageScale,
 			Math.min(this.maxPageScale, newScale)
@@ -785,8 +838,11 @@ Polymer({
 		return !!isLoaded && !!hasRecentInteraction;
 	},
 	_resetPdfData: function() {
-		this._pdfViewer.setDocument(null);
-		this._pdfLinkService.setDocument(null);
+		// Check if pdfJs has been imported
+		if (this._pdfViewer && this._pdfLinkService) {
+			this._pdfViewer.setDocument(null);
+			this._pdfLinkService.setDocument(null);
+		}
 		this._pageNumber = 0;
 		this._pagesCount = 0;
 		this._isLoaded = false;
