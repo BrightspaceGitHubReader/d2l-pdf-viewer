@@ -639,23 +639,24 @@ Polymer({
 		this._addedEventListeners = true;
 	},
 	_resize: function() {
+		if (!this._pdfViewer) {
+			return;
+		}
 		if (!this._resizeThrottleHandle) {
-			this._initializeTask.then(() => {
-				this._resizeThrottleHandle = setTimeout(() => {
-					var currentScaleValue = this._pdfViewer.currentScaleValue;
+			this._resizeThrottleHandle = setTimeout(() => {
+				var currentScaleValue = this._pdfViewer.currentScaleValue;
 
-					if (currentScaleValue === 'auto' ||
-						currentScaleValue === 'page-fit' ||
-						currentScaleValue === 'page-width') {
-						// Note: the scale is constant for 'page-actual'.
-						this._pdfViewer.currentScaleValue = currentScaleValue;
-					}
+				if (currentScaleValue === 'auto' ||
+					currentScaleValue === 'page-fit' ||
+					currentScaleValue === 'page-width') {
+					// Note: the scale is constant for 'page-actual'.
+					this._pdfViewer.currentScaleValue = currentScaleValue;
+				}
 
-					this._pageScale = this._pdfViewer.currentScale;
-					this._pdfViewer.update();
-					this._resizeThrottleHandle = null;
-				}, 100);
-			});
+				this._pageScale = this._pdfViewer.currentScale;
+				this._pdfViewer.update();
+				this._resizeThrottleHandle = null;
+			}, 100);
 		}
 	},
 	_srcChanged: function(isAttached, src) {
