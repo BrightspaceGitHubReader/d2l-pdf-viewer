@@ -2,7 +2,6 @@
   "npm": true,
   "lint": {
     "rules": ["polymer-3"],
-    "ignoreWarnings": ["not-loadable"],
-    "filesToIgnore": ["node_modules"]
+    "ignoreWarnings": ["not-loadable"]
   }
 }
