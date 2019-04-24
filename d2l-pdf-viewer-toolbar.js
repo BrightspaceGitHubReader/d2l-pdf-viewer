@@ -53,7 +53,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer-toolbar">
 				margin: 0 12px 0 15px;
 			}
 
-			:host-context([dir="rtl"]) .control-container {
+			:host(:dir(rtl)) .control-container {
 				margin: 0 15px 0 12px;
 			}
 
@@ -61,7 +61,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer-toolbar">
 				margin: 0 15px 0 18px;
 			}
 
-			:host-context([dir="rtl"]) .info-container {
+			:host(:dir(rtl)) .info-container {
 				margin: 0 18px 0 15px;
 			}
 
@@ -87,7 +87,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer-toolbar">
 			</div>
 		</div>
 	</template>
-	
+
 </dom-module>`;
 
 document.head.appendChild($_documentContainer.content);
