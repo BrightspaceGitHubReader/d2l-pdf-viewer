@@ -6,6 +6,7 @@ import 'd2l-colors/d2l-colors.js';
 import 'fullscreen-api/fullscreen-api.js';
 import './d2l-pdf-viewer-progress-bar.js';
 import './d2l-pdf-viewer-toolbar.js';
+import { FullscreenAPI } from './fullscreen.js';
 
 const $_documentContainer = document.createElement('template');
 
@@ -445,13 +446,6 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer">
 
 		<span id="pdfName" hidden="">[[_pdfName]]</span>
 
-		<fullscreen-api
-			id="fsApi"
-			target="[[_getFullscreenTarget()]]"
-			fullscreen="{{_isFullscreen}}"
-			fullscreen-available="{{_isFullscreenAvailable}}">
-		</fullscreen-api>
-
 		<d2l-pdf-viewer-progress-bar id="progressBar"></d2l-pdf-viewer-progress-bar>
 		<d2l-pdf-viewer-toolbar
 			id="toolbar"
@@ -560,6 +554,11 @@ Polymer({
 	ready: function() {
 		this._boundListeners = false;
 		this._addedEventListeners = false;
+
+		this.fullscreenApi = new FullscreenAPI({
+			target: this,
+			onFullscreenChangedCallback: this._onFullscreenChanged.bind(this),
+		});
 
 		let initializeTask;
 
@@ -685,6 +684,9 @@ Polymer({
 	},
 	attached: function() {
 		this._addEventListeners();
+		this.fullscreenApi.init();
+		this._isFullscreenAvailable = this.fullscreenApi.isFullscreenAvailable();
+
 		if (!this._pdfViewer) {
 			const progressBar = this.$.progressBar;
 			progressBar.hidden = false;
@@ -693,6 +695,8 @@ Polymer({
 		}
 	},
 	detached: function() {
+		this.fullscreenApi.dispose();
+
 		window.removeEventListener('resize', this._resize);
 
 		this.$.viewerContainer.removeEventListener('pagesinit', this._onPagesInitEvent);
@@ -863,7 +867,7 @@ Polymer({
 		if (!this._pdfViewer) {
 			return;
 		}
-		this.$.fsApi.toggleFullscreen();
+		this.fullscreenApi.toggleFullscreen();
 		this._onInteraction();
 
 		// If scale is a special type (eg. 'page-width'), ensure we maintain that
@@ -969,5 +973,8 @@ Polymer({
 		}
 
 		this._pdfName = pdfName;
+	},
+	_onFullscreenChanged: function(isFullscreen) {
+		this._isFullscreen = isFullscreen;
 	}
 });
