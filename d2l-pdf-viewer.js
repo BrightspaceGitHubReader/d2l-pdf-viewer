@@ -1,3 +1,5 @@
+/* global pdfjsViewer, pdfjsLib */
+
 import '@polymer/polymer/polymer-legacy.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 import 'd2l-colors/d2l-colors.js';
@@ -485,6 +487,10 @@ Polymer({
 		'aria-describedby': 'pdfName'
 	},
 	properties: {
+		loader: {
+			type: String,
+			value: 'import'
+		},
 		minPageScale: {
 			type: Number,
 			value: 0.1
@@ -493,11 +499,16 @@ Polymer({
 			type: Number,
 			value: 5
 		},
+		pdfjsBasePath: String,
 		pdfJsWorkerSrc: {
 			type: String
 		},
 		src: {
 			type: String
+		},
+		useCdn: {
+			type: Boolean,
+			value: false
 		},
 		_isFullscreen: {
 			type: Boolean,
@@ -549,46 +560,128 @@ Polymer({
 	ready: function() {
 		this._boundListeners = false;
 		this._addedEventListeners = false;
-		// Import pdfjs separately to allow better code splitting
-		this._initializeTask = Promise.all([
+
+		let initializeTask;
+
+		this._workerSrc = this.pdfJsWorkerSrc;
+
+		// Currently the loader implies useCdn, but ideally isn't in the future
+		switch (this.loader) {
+			case 'import':
+				initializeTask = this._loadDynamicImports();
+				break;
+			case 'script':
+				initializeTask = this._loadScripts();
+				break;
+			default:
+				initializeTask = Promise.reject(`unknown loader: ${this.loader}`);
+		}
+
+		this._initializeTask = initializeTask
+			.then(libraries => {
+				return this._onLibrariesLoaded(libraries);
+			})
+			.catch(e => {
+				this.$.progressBar.hidden = true;
+
+				if (this.dispatchEvent(new CustomEvent(
+					'd2l-pdf-viewer-load-failed', {
+						bubbles: true,
+						composed: true,
+						detail: e,
+						cancelable: true
+					},
+				))) {
+					console.error(e); //eslint-disable-line
+				}
+			});
+	},
+	_loadDynamicImports: function() {
+		if (this.useCdn || this.pdfjsBasePath) {
+			return Promise.reject('loader `import` does not have CDN/base path support');
+		}
+
+		if (!this._workerSrc) {
+			this._workerSrc = `${import.meta.url}/../node_modules/pdfjs-dist-modules/pdf.worker.min.js`;
+		}
+
+		return Promise.all([
 			import('pdfjs-dist-modules/pdf.js'),
 			import('pdfjs-dist-modules/pdf_link_service.js'),
 			import('pdfjs-dist-modules/pdf_viewer.js')
-		])
-			.then(([pdfImport, pdfLinkServiceImport, pdfViewerImport]) => {
-				const pdf = pdfImport.default;
-				const { LinkTarget } = pdfImport;
-				const { PDFLinkService } = pdfLinkServiceImport;
-				const { PDFViewer } = pdfViewerImport;
+		]).then(([pdfImport, pdfLinkServiceImport, pdfViewerImport]) => {
+			return {
+				pdfjsLib: pdfImport.default,
+				LinkTarget: pdfImport.LinkTarget,
+				PDFLinkService: pdfLinkServiceImport.PDFLinkService,
+				PDFViewer: pdfViewerImport.PDFViewer
+			};
+		});
+	},
+	_loadScripts: function() {
+		const basePath = this.useCdn
+			? 'https://s.brightspace.com/lib/pdf.js/2.0.943'
+			: this.pdfjsBasePath || `${import.meta.url}/../node_modules/pdfjs-dist`;
 
-				this._pdf = pdf;
-				// Ensure that style scoping is applied to elements added by PDF.js
-				// under Shady DOM
-				this.scopeSubtree(this.$.viewerContainer, true);
+		if (!this._workerSrc) {
+			this._workerSrc = `${basePath}/build/pdf.worker.min.js`;
+		}
 
-				pdf.GlobalWorkerOptions.workerSrc =
-					this.pdfJsWorkerSrc || import.meta.url + '/../node_modules/pdfjs-dist-modules/pdf.worker.min.js';
-
-				// (Optionally) enable hyperlinks within PDF files.
-				this._pdfLinkService = new PDFLinkService({
-					externalLinkTarget: LinkTarget.BLANK
-				});
-
-				this._pdfViewer = new PDFViewer({
-					container: this.$.viewerContainer,
-					linkService: this._pdfLinkService,
-					useOnlyCssZoom: true, // Use CSS zooming only, as default zoom rendering in (modularized?) pdfjs-dist is buggy
-				});
-
-				this._pdfLinkService.setViewer(this._pdfViewer);
-
-				// Add event listeners before loading document
-				this._addEventListeners();
-
-				this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-initialized', {
-					bubbles: true,
-				}));
+		return this._loadScript(`${basePath}/build/pdf.min.js`)
+			.then(() => this._loadScript(`${basePath}/web/pdf_viewer.js`))
+			.then(() => {
+				return {
+					pdfjsLib,
+					LinkTarget: pdfjsLib.LinkTarget,
+					PDFLinkService: pdfjsViewer.PDFLinkService,
+					PDFViewer: pdfjsViewer.PDFViewer,
+				};
 			});
+	},
+	_loadScript: function(src) {
+		const scriptTag = document.createElement('script');
+		scriptTag.async = false;
+		document.head.appendChild(scriptTag);
+
+		return new Promise((resolve, reject) => {
+			scriptTag.onload = resolve;
+			scriptTag.onerror = reject;
+			scriptTag.src = src;
+		});
+	},
+	_onLibrariesLoaded: function({
+		pdfjsLib,
+		LinkTarget,
+		PDFViewer,
+		PDFLinkService,
+	}) {
+		this._pdfJsLib = pdfjsLib;
+
+		// Ensure that style scoping is applied to elements added by PDF.js
+		// under Shady DOM
+		this.scopeSubtree(this.$.viewerContainer, true);
+
+		pdfjsLib.GlobalWorkerOptions.workerSrc = this._workerSrc;
+
+		// (Optionally) enable hyperlinks within PDF files.
+		this._pdfLinkService = new PDFLinkService({
+			externalLinkTarget: LinkTarget.BLANK
+		});
+
+		this._pdfViewer = new PDFViewer({
+			container: this.$.viewerContainer,
+			linkService: this._pdfLinkService,
+			useOnlyCssZoom: true, // Use CSS zooming only, as default zoom rendering in (modularized?) pdfjs-dist is buggy
+		});
+
+		this._pdfLinkService.setViewer(this._pdfViewer);
+
+		// Add event listeners before loading document
+		this._addEventListeners();
+
+		this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-initialized', {
+			bubbles: true,
+		}));
 	},
 	attached: function() {
 		this._addEventListeners();
@@ -694,7 +787,7 @@ Polymer({
 		this._setPdfNameFromUrl(src);
 
 		destroyLoadingTask.then(() => {
-			const loadingTask = this._loadingTask = this._pdf.getDocument({
+			const loadingTask = this._loadingTask = this._pdfJsLib.getDocument({
 				url: src
 			});
 

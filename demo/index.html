@@ -61,7 +61,26 @@ $_documentContainer.innerHTML = `<div class="vertical-section-container centered
 							width: 100%;
 						}
 					</style>
-					<d2l-pdf-viewer src="/demo/compressed.tracemonkey-pldi-09.pdf"></d2l-pdf-viewer>
+					<h3>ECMAScript Module</h3>
+					<d2l-pdf-viewer
+						src="/demo/compressed.tracemonkey-pldi-09.pdf"
+					></d2l-pdf-viewer>
+				</template>
+			</demo-snippet>
+			<demo-snippet>
+				<template strip-whitespace="">
+					<style>
+						d2l-pdf-viewer {
+							height: 500px;
+							width: 100%;
+						}
+					</style>
+					<h3>Script loader from CDN</h3>
+					<d2l-pdf-viewer
+						loader="script"
+						use-cdn
+						src="/demo/compressed.tracemonkey-pldi-09.pdf"
+					></d2l-pdf-viewer>
 				</template>
 			</demo-snippet>
 		</div>`;
