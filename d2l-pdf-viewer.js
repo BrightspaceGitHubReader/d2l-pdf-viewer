@@ -68,7 +68,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer">
 				line-height: 1.0;
 			}
 
-			.textLayer>div {
+			.textLayer > div {
 				color: transparent;
 				position: absolute;
 				white-space: pre;
@@ -251,7 +251,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer">
 			}
 
 			.annotationLayer .textWidgetAnnotation input.comb:focus {
-				/*
+			/*
 			* Letter spacing is placed on the right side of each character. Hence, the
 			* letter spacing of the last character may be placed outside the visible
 			* area, causing horizontal scrolling. We avoid this by extending the width
@@ -702,12 +702,9 @@ Polymer({
 		this.viewerContainer.removeEventListener('pagesinit', this._onPagesInitEvent);
 		this.viewerContainer.removeEventListener('pagechange', this._onPageChangeEvent);
 
-		viewerContainer.removeEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
-		viewerContainer.removeEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
-		toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
-		toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
-		toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
-		toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
+		this.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
+		this.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+		this.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
 		this.progressBar.removeEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 
@@ -719,13 +716,11 @@ Polymer({
 			this._resize = this._resize.bind(this);
 			this._onPagesInitEvent = this._onPagesInitEvent.bind(this);
 			this._onPageChangeEvent = this._onPageChangeEvent.bind(this);
-			this._onPrevPageEvent = this._onPrevPageEvent.bind(this);
-			this._onNextPageEvent = this._onNextPageEvent.bind(this);
 			this._onZoomInEvent = this._onZoomInEvent.bind(this);
 			this._onZoomOutEvent = this._onZoomOutEvent.bind(this);
-			this._onPageNumberChangedEvent = this._onPageNumberChangedEvent.bind(this);
 			this._onFullscreenEvent = this._onFullscreenEvent.bind(this);
 			this._onProgressAnimationCompleteEvent = this._onProgressAnimationCompleteEvent.bind(this);
+
 			this._boundListeners = true;
 		}
 
@@ -738,11 +733,8 @@ Polymer({
 		this.viewerContainer.addEventListener('pagesinit', this._onPagesInitEvent);
 		this.viewerContainer.addEventListener('pagechange', this._onPageChangeEvent);
 
-		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
-		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
 		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
 		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
-		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
 		this.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
@@ -753,6 +745,7 @@ Polymer({
 		if (!this._pdfViewer) {
 			return;
 		}
+
 		if (!this._resizeThrottleHandle) {
 			this._resizeThrottleHandle = setTimeout(() => {
 				var currentScaleValue = this._pdfViewer.currentScaleValue;
@@ -845,16 +838,6 @@ Polymer({
 	_onPageChangeEvent: function(evt) {
 		this._pageNumber = evt.pageNumber;
 	},
-	_onNextPageEvent: function() {
-		if (this._pdfViewer) {
-			this._setPageNumber(this._pdfViewer.currentPageNumber + 1);
-		}
-	},
-	_onPrevPageEvent: function() {
-		if (this._pdfViewer) {
-			this._setPageNumber(this._pdfViewer.currentPageNumber - 1);
-		}
-	},
 	_onZoomInEvent: function() {
 		this._addDeltaZoom(0.1);
 		this._onInteraction();
@@ -909,9 +892,6 @@ Polymer({
 		);
 
 		this._pageScale = this._pdfViewer.currentScale;
-	},
-	_getFullscreenTarget: function() {
-		return this;
 	},
 	_onMouseEnter: function() {
 		this.addEventListener('mousemove', this._onMouseMove);
