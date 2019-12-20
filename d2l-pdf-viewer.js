@@ -564,6 +564,8 @@ Polymer({
 			onFullscreenChangedCallback: this._onFullscreenChanged.bind(this),
 		});
 
+		this._isFullscreenAvailable = this.fullscreenApi.isFullscreenAvailable;
+
 		let initializeTask;
 
 		this._workerSrc = this.pdfJsWorkerSrc;
@@ -684,8 +686,6 @@ Polymer({
 	},
 	attached: function() {
 		this._addEventListeners();
-		this.fullscreenApi.init();
-		this._isFullscreenAvailable = this.fullscreenApi.isFullscreenAvailable;
 
 		if (!this._pdfViewer) {
 			const progressBar = this.progressBar;
@@ -695,8 +695,6 @@ Polymer({
 		}
 	},
 	detached: function() {
-		this.fullscreenApi.dispose();
-
 		window.removeEventListener('resize', this._resize);
 
 		this.viewerContainer.removeEventListener('pagesinit', this._onPagesInitEvent);

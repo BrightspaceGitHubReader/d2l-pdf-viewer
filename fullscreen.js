@@ -14,12 +14,6 @@ export class FullscreenAPI {
 		this.target = opts.target;
 		this.onFullscreenChangedCallback = opts.onFullscreenChangedCallback;
 		this.__onFullscreenChanged = this.onFullscreenChanged.bind(this);
-	}
-
-	init() {
-		if (this.__init) {
-			return;
-		}
 
 		if (this.isFullscreenAvailable) {
 			FULLSCREEN_CHANGE_EVENTS.forEach(changeEvent => {
@@ -30,20 +24,6 @@ export class FullscreenAPI {
 		if (this.onFullscreenChangedCallback) {
 			this.onFullscreenChangedCallback();
 		}
-
-		this.__init = true;
-	}
-
-	dispose() {
-		if (!this.__init) {
-			return;
-		}
-
-		FULLSCREEN_CHANGE_EVENTS.forEach(changeEvent => {
-			document.removeEventListener(changeEvent, this.__onFullscreenChanged);
-		});
-
-		this.__init = false;
 	}
 
 	toggleFullscreen() {
@@ -51,9 +31,8 @@ export class FullscreenAPI {
 			if (!this.isFullscreenToggled) {
 				// We are not in full screen mode, let's request it
 				// But first let's grad a hold on the target
-				var targetElement = typeof this.target !== 'string' ? this.target :
-					document.querySelector(this.target);
-				targetElement = targetElement || document.documentElement;
+				const targetElement = this.target || document.documentElement;
+
 				if (targetElement.requestFullscreen) {
 					targetElement.requestFullscreen();
 				} else if (targetElement.webkitRequestFullscreen) {
@@ -96,9 +75,9 @@ export class FullscreenAPI {
 
 	get isFullscreenToggled() {
 		const fullscreenElement = document.fullscreenElement ||
-		document.webkitFullscreenElement ||
-		document.mozFullScreenElement ||
-		document.msFullscreenElement;
+			document.webkitFullscreenElement ||
+			document.mozFullScreenElement ||
+			document.msFullscreenElement;
 
 		return fullscreenElement === this.target;
 	}
