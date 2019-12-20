@@ -837,6 +837,8 @@ Polymer({
 	},
 	_onPageChangeEvent: function(evt) {
 		this._pageNumber = evt.pageNumber;
+
+		this._onInteraction();
 	},
 	_onZoomInEvent: function() {
 		this._addDeltaZoom(0.1);
