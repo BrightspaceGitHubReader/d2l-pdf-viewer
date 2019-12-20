@@ -200,7 +200,7 @@ Polymer({
 		const toolbarControls = dom(this.root).querySelectorAll('d2l-pdf-viewer-toolbar-button');
 		const toolbarButtons = Array.prototype.slice.call(toolbarControls);
 
-		this.arrowKeyFocusablesContainer = this.$$('.control-container');
+		this.arrowKeyFocusablesContainer = this.shadowRoot.querySelector('.control-container');
 
 		this.arrowKeyFocusablesProvider = () => {
 			return new Promise((resolve) => {

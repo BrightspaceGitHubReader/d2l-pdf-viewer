@@ -1,3 +1,10 @@
+const FULLSCREEN_CHANGE_EVENTS = [
+	'fullscreenchange',
+	'webkitfullscreenchange',
+	'mozfullscreenchange',
+	'MSFullscreenChange',
+];
+
 /**
  * Toggle between full screen and normal display mode.
  * MUST be triggered directly by user interaction
@@ -14,11 +21,10 @@ export class FullscreenAPI {
 			return;
 		}
 
-		if (this.isFullscreenAvailable()) {
-			document.addEventListener('fullscreenchange', this.__onFullscreenChanged);
-			document.addEventListener('webkitfullscreenchange', this.__onFullscreenChanged);
-			document.addEventListener('mozfullscreenchange', this.__onFullscreenChanged);
-			document.addEventListener('MSFullscreenChange', this.__onFullscreenChanged);
+		if (this.isFullscreenAvailable) {
+			FULLSCREEN_CHANGE_EVENTS.forEach(changeEvent => {
+				document.addEventListener(changeEvent, this.__onFullscreenChanged);
+			});
 		}
 
 		if (this.onFullscreenChangedCallback) {
@@ -33,17 +39,16 @@ export class FullscreenAPI {
 			return;
 		}
 
-		this.__init = false;
+		FULLSCREEN_CHANGE_EVENTS.forEach(changeEvent => {
+			document.removeEventListener(changeEvent, this.__onFullscreenChanged);
+		});
 
-		document.removeEventListener('fullscreenchange', this.__onFullscreenChanged);
-		document.removeEventListener('webkitfullscreenchange', this.__onFullscreenChanged);
-		document.removeEventListener('mozfullscreenchange', this.__onFullscreenChanged);
-		document.removeEventListener('MSFullscreenChange', this.__onFullscreenChanged);
+		this.__init = false;
 	}
 
 	toggleFullscreen() {
-		if (this.isFullscreenAvailable()) {
-			if (!this.isFullscreenToggled()) {
+		if (this.isFullscreenAvailable) {
+			if (!this.isFullscreenToggled) {
 				// We are not in full screen mode, let's request it
 				// But first let's grad a hold on the target
 				var targetElement = typeof this.target !== 'string' ? this.target :
@@ -77,19 +82,19 @@ export class FullscreenAPI {
 	 * Exit full screen mode (if toggled)
 	 */
 	exitFullscreen() {
-		if (this.isFullscreenToggled()) {
+		if (this.isFullscreenToggled) {
 			this.toggleFullscreen();
 		}
 	}
 
-	isFullscreenAvailable() {
+	get isFullscreenAvailable() {
 		return (document.fullscreenEnabled ||
 			document.webkitFullscreenEnabled ||
 			document.mozFullScreenEnabled ||
 			document.msFullscreenEnabled) ? true : false;
 	}
 
-	isFullscreenToggled() {
+	get isFullscreenToggled() {
 		const fullscreenElement = document.fullscreenElement ||
 		document.webkitFullscreenElement ||
 		document.mozFullScreenElement ||
@@ -100,7 +105,7 @@ export class FullscreenAPI {
 
 	onFullscreenChanged() {
 		if (this.onFullscreenChangedCallback) {
-			this.onFullscreenChangedCallback(this.isFullscreenToggled());
+			this.onFullscreenChangedCallback(this.isFullscreenToggled);
 		}
 	}
 }

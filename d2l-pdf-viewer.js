@@ -555,6 +555,10 @@ Polymer({
 		this._boundListeners = false;
 		this._addedEventListeners = false;
 
+		this.viewerContainer = this.shadowRoot.getElementById('viewerContainer');
+		this.toolbar = this.shadowRoot.getElementById('toolbar');
+		this.progressBar = this.shadowRoot.getElementById('progressBar');
+
 		this.fullscreenApi = new FullscreenAPI({
 			target: this,
 			onFullscreenChangedCallback: this._onFullscreenChanged.bind(this),
@@ -581,7 +585,7 @@ Polymer({
 				return this._onLibrariesLoaded(libraries);
 			})
 			.catch(e => {
-				this.$.progressBar.hidden = true;
+				this.progressBar.hidden = true;
 
 				if (this.dispatchEvent(new CustomEvent(
 					'd2l-pdf-viewer-load-failed', {
@@ -656,10 +660,6 @@ Polymer({
 	}) {
 		this._pdfJsLib = pdfjsLib;
 
-		// Ensure that style scoping is applied to elements added by PDF.js
-		// under Shady DOM
-		this.scopeSubtree(this.$.viewerContainer, true);
-
 		pdfjsLib.GlobalWorkerOptions.workerSrc = this._workerSrc;
 
 		// (Optionally) enable hyperlinks within PDF files.
@@ -668,7 +668,7 @@ Polymer({
 		});
 
 		this._pdfViewer = new PDFViewer({
-			container: this.$.viewerContainer,
+			container: this.viewerContainer,
 			linkService: this._pdfLinkService,
 			useOnlyCssZoom: true, // Use CSS zooming only, as default zoom rendering in (modularized?) pdfjs-dist is buggy
 		});
@@ -685,10 +685,10 @@ Polymer({
 	attached: function() {
 		this._addEventListeners();
 		this.fullscreenApi.init();
-		this._isFullscreenAvailable = this.fullscreenApi.isFullscreenAvailable();
+		this._isFullscreenAvailable = this.fullscreenApi.isFullscreenAvailable;
 
 		if (!this._pdfViewer) {
-			const progressBar = this.$.progressBar;
+			const progressBar = this.progressBar;
 			progressBar.hidden = false;
 			progressBar.indeterminate = true;
 			progressBar.start();
@@ -699,17 +699,17 @@ Polymer({
 
 		window.removeEventListener('resize', this._resize);
 
-		this.$.viewerContainer.removeEventListener('pagesinit', this._onPagesInitEvent);
-		this.$.viewerContainer.removeEventListener('pagechange', this._onPageChangeEvent);
+		this.viewerContainer.removeEventListener('pagesinit', this._onPagesInitEvent);
+		this.viewerContainer.removeEventListener('pagechange', this._onPageChangeEvent);
 
-		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
-		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
-		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
-		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
-		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
-		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
+		viewerContainer.removeEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
+		viewerContainer.removeEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
+		toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
+		toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+		toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
+		toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
-		this.$.progressBar.removeEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
+		this.progressBar.removeEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 
 		this._addedEventListeners = false;
 	},
@@ -735,17 +735,17 @@ Polymer({
 
 		window.addEventListener('resize', this._resize);
 
-		this.$.viewerContainer.addEventListener('pagesinit', this._onPagesInitEvent);
-		this.$.viewerContainer.addEventListener('pagechange', this._onPageChangeEvent);
+		this.viewerContainer.addEventListener('pagesinit', this._onPagesInitEvent);
+		this.viewerContainer.addEventListener('pagechange', this._onPageChangeEvent);
 
-		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
-		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
-		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
-		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
-		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
-		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-previous', this._onPrevPageEvent);
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
-		this.$.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
+		this.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
 
 		this._addedEventListeners = true;
 	},
@@ -775,7 +775,7 @@ Polymer({
 			return;
 		}
 
-		const progressBar = this.$.progressBar;
+		const progressBar = this.progressBar;
 		let destroyLoadingTask = this._initializeTask;
 
 		this._resetPdfData();
@@ -838,8 +838,8 @@ Polymer({
 		this._onInteraction();
 		this._isLoaded = true;
 
-		if (this.$.progressBar.indeterminate) {
-			this.$.progressBar.finish();
+		if (this.progressBar.indeterminate) {
+			this.progressBar.finish();
 		}
 	},
 	_onPageChangeEvent: function(evt) {
@@ -876,7 +876,7 @@ Polymer({
 		});
 	},
 	_onProgressAnimationCompleteEvent: function() {
-		this.$.progressBar.hidden = true;
+		this.progressBar.hidden = true;
 	},
 	_onPageNumberChangedEvent: function(evt) {
 		var newPage = parseInt(evt.detail.page);

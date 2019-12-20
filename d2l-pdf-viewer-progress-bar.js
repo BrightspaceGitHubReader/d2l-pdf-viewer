@@ -46,7 +46,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer-progress-bar">
 			<div id="progressBar" class="progress-bar"></div>
 		</div>
 	</template>
-	
+
 </dom-module>`;
 
 document.head.appendChild($_documentContainer.content);
@@ -105,9 +105,11 @@ Polymer({
 		this._progress = 0;
 		this._indeterminateState = indeterminateStates.RESET;
 
+		this.progressBar = this.shadowRoot.getElementById('progressBar');
+
 		this._onTransitionEndEvent = this._onTransitionEndEvent.bind(this);
 
-		this.$.progressBar.addEventListener('transitionend', this._onTransitionEndEvent);
+		this.progressBar.addEventListener('transitionend', this._onTransitionEndEvent);
 	},
 
 	/**
@@ -144,8 +146,8 @@ Polymer({
 
 		this._indeterminateState = state;
 
-		this.toggleClass('indeterminate-in-progress', inProgress, this.$.progressBar);
-		this.toggleClass('indeterminate-complete', complete, this.$.progressBar);
+		this.toggleClass('indeterminate-in-progress', inProgress, this.progressBar);
+		this.toggleClass('indeterminate-complete', complete, this.progressBar);
 
 		let progress = 0;
 
@@ -157,7 +159,7 @@ Polymer({
 	},
 
 	_onConfigChanged: function(indeterminate, autostart) {
-		this.toggleClass('determinate', !indeterminate, this.$.progressBar);
+		this.toggleClass('determinate', !indeterminate, this.progressBar);
 
 		if (indeterminate) {
 			this.removeAttribute('aria-valuemax');
@@ -200,7 +202,7 @@ Polymer({
 		this.__progress = Math.max(0, Math.min(val, 100));
 
 		fastdom.mutate(() => {
-			this.$.progressBar.style.transform = 'translate(-' + (100 - this.__progress) + '%,0)';
+			this.progressBar.style.transform = 'translate(-' + (100 - this.__progress) + '%,0)';
 		});
 	},
 
