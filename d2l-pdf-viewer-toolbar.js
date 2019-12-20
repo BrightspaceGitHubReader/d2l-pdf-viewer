@@ -197,7 +197,7 @@ Polymer({
 			: 'd2l-tier1:fullscreen';
 	},
 	_initRovingTabIndex: function() {
-		const toolbarControls = dom(this.root).querySelectorAll('d2l-pdf-viewer-toolbar-button');
+		const toolbarControls = this.shadowRoot.querySelectorAll('d2l-pdf-viewer-toolbar-button');
 		const toolbarButtons = Array.prototype.slice.call(toolbarControls);
 
 		this.arrowKeyFocusablesContainer = this.shadowRoot.querySelector('.control-container');
