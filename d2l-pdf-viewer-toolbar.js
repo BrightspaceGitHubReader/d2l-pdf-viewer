@@ -1,4 +1,4 @@
-import { PolymerElement, html } from '@polymer/polymer';
+import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
 import { mixinBehaviors } from '@polymer/polymer/lib/legacy/class.js';
 import 'd2l-icons/d2l-icon.js';
@@ -10,14 +10,42 @@ import 'fastdom/fastdom.js';
 import './d2l-pdf-viewer-toolbar-button.js';
 import './localize-behavior.js';
 
+/*
 class D2LPdfViewerToolbar extends mixinBehaviors([
 	D2L.PolymerBehaviors.PdfViewer.LocalizeBehavior,
 	D2L.PolymerBehaviors.FocusableArrowKeysBehavior,
 ], PolymerElement) {
-	static get template() {
-		return html`
-			<style>
-				:host {
+	*/
+class D2LPdfViewerToolbar extends LitElement {
+	static get properties() {
+		return {
+			fullscreenAvailable: {
+				type: Boolean,
+			},
+			isFullscreen: {
+				type: Boolean,
+			},
+			minPageScale: {
+				type: Number,
+			},
+			maxPageScale: {
+				type: Number,
+			},
+			pagesCount: {
+				type: Number,
+			},
+			pageNumber: {
+				type: Number,
+			},
+			pageScale: {
+				type: Number,
+			},
+		};
+	}
+
+	static get styles() {
+		return css`
+			:host {
 					user-select: none;
 					width: 100%;
 				}
@@ -47,9 +75,11 @@ class D2LPdfViewerToolbar extends mixinBehaviors([
 					flex: 0 0 auto;
 				}
 
+/* @TODO(AP): Replace CSS mixin
 				.toolbar-label {
 					@apply --d2l-body-compact-text;
 				}
+*/
 
 				.control-container {
 					margin: 0 12px 0 15px;
@@ -69,46 +99,48 @@ class D2LPdfViewerToolbar extends mixinBehaviors([
 
 				d2l-pdf-viewer-toolbar-button {
 					margin: 6px;
-				}
-			</style>
+				}`;
+	}
+
+	render() {
+		return html`
 			<div class="outer-container">
 				<div class="toolbar-container">
 					<div class="info-container">
-						<span id="pageNumber" class="toolbar-label" aria-label$="[[localize('pageLabel')]]">
+	<!--
+						<span id="pageNumber" class="toolbar-label" aria-label$=${this.localize('pageLabel')}>
 							[[localize('pageOfPages', 'pageNumber', pageNumber, 'pagesCount', pagesCount)]]
 						</span>
+	-->
 					</div>
 					<div class="control-container" role="group">
 						<d2l-pdf-viewer-toolbar-button
 							id="zoomOutButton"
-							title="[[localize('zoomOutTitle')]]"
+							title=${this.localize('zoomOutTitle')}
 							icon="d2l-tier1:zoom-out"
-							on-tap="_onZoomOutButtonTapped"
-							on-keydown="_onToolbarButtonKeyDown"
-							aria-label="[[localize('zoomOutLabel')]]"
-							disabled="[[_zoomOutButtonDisabled(pageScale, minPageScale)]]"
+							@click=${this._onZoomOutButtonTapped}
+							@keydown=${this._onToolbarButtonKeyDown}
+							?disabled=${this._zoomOutButtonDisabled(pageScale, minPageScale)}
 							tabindex="0">
 						</d2l-pdf-viewer-toolbar-button>
 						<d2l-pdf-viewer-toolbar-button
 							id="zoomInButton"
-							on-tap="_onZoomInButtonTapped"
-							on-keydown="_onToolbarButtonKeyDown"
-							title="[[localize('zoomInTitle')]]"
+							@click=${this._onZoomInButtonTapped}
+							@keydown=${this._onToolbarButtonKeyDown}
+							title=${this.localize('zoomInTitle')}
 							icon="d2l-tier1:zoom-in"
-							aria-label="[[localize('zoomInLabel')]]"
-							disabled="[[_zoomInButtonDisabled(pageScale, maxPageScale)]]"
+							?disabled=${this._zoomInButtonDisabled(pageScale, maxPageScale)}
 							tabindex="-1">
 						</d2l-pdf-viewer-toolbar-button>
 						<d2l-pdf-viewer-toolbar-button
 							toggle=""
 							id="fullscreenButton"
-							on-tap="_onToggleFullscreenButtonTapped"
-							on-keydown="_onToolbarButtonKeyDown"
-							title="[[localize('presentationModeTitle')]]"
-							icon="[[_getFullscreenIcon(isFullscreen)]]"
-							aria-label="[[localize('presentationModeLabel')]]"
-							pressed="[[isFullscreen]]"
-							disabled="[[!fullscreenAvailable]]"
+							@click=${this._onToggleFullscreenButtonTapped}
+							@keydown=${this._onToolbarButtonKeyDown}
+							title=${this.localize('presentationModeTitle')}
+							icon=${this._getFullscreenIcon(isFullscreen)}
+							pressed=${this.isFullscreen ? 'true' : false}
+							?disabled=${!this.fullscreenAvailable}
 							tabindex="-1">
 						</d2l-pdf-viewer-toolbar-button>
 					</div>
@@ -116,43 +148,18 @@ class D2LPdfViewerToolbar extends mixinBehaviors([
 			</div>`;
 	}
 
-	static get hostAttributes() {
-		return {
-			role: 'toolbar',
-		};
-	}
+	constructor() {
+		super();
 
-	static get properties() {
-		return {
-			fullscreenAvailable: {
-				type: Boolean,
-				value: false,
-			},
-			isFullscreen: {
-				type: Boolean,
-				value: false,
-			},
-			minPageScale: {
-				type: Number,
-				value: 0,
-			},
-			maxPageScale: {
-				type: Number,
-				value: 0,
-			},
-			pagesCount: {
-				type: Number,
-				value: 0,
-			},
-			pageNumber: {
-				type: Number,
-				value: 0,
-			},
-			pageScale: {
-				type: Number,
-				value: 0,
-			},
-		};
+		this.fullscreenAvailable = false;
+		this.isFullscreen = false;
+		this.minPageScale = 0;
+		this.maxPageScale = 0;
+		this.pagesCount = 0;
+		this.pageNumber = 0;
+		this.pageScale = 0;
+
+		this.setAttribute('role', 'toolbar');
 	}
 
 	connectedCallback() {

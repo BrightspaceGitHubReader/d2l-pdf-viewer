@@ -453,14 +453,14 @@ class D2LPdfViewerElement extends LitElement {
 			<d2l-pdf-viewer-progress-bar id="progressBar"></d2l-pdf-viewer-progress-bar>
 			<d2l-pdf-viewer-toolbar
 				id="toolbar"
-				page-number="[[_pageNumber]]"
-				pages-count="[[_pagesCount]]"
-				page-scale="[[_pageScale]]"
-				min-page-scale="[[minPageScale]]"
-				max-page-scale="[[maxPageScale]]"
-				fullscreen-available="[[_isFullscreenAvailable]]"
-				is-fullscreen="[[_isFullscreen]]"
-				show$="[[_showToolbar]]">
+				page-number=${this._pageNumber}
+				pages-count=${this._pagesCount}
+				page-scale=${this._pageScale}
+				min-page-scale=${this.minPageScale}
+				max-page-scale=${this.maxPageScale}
+				?fullscreen-available=${this._isFullscreenAvailable}
+				?is-fullscreen=${this._isFullscreen}
+				?show=${this._showToolbar}>
 			</d2l-pdf-viewer-toolbar>
 			<div id="viewerContainer">
 				<div id="viewer" class="pdfViewer" tabindex="0"></div>
@@ -502,7 +502,6 @@ class D2LPdfViewerElement extends LitElement {
 			},
 			_isFullscreenAvailable: {
 				type: Boolean,
-
 			},
 			_isLoaded: {
 				type: Boolean,
