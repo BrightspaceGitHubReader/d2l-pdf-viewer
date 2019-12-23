@@ -1,44 +1,43 @@
 import { css, html, LitElement } from 'lit-element/lit-element.js';
-import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
-import { mixinBehaviors } from '@polymer/polymer/lib/legacy/class.js';
-import 'd2l-icons/d2l-icon.js';
-import 'd2l-icons/tier1-icons.js';
+import { LocalizeMixin } from '@brightspace-ui/core/mixins/localize-mixin.js';
+import '@brightspace-ui/core/components/icons/icon.js';
+import '@brightspace-ui/core/components/typography/styles.js';
 import 'd2l-polymer-behaviors/d2l-dom.js';
-import 'd2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.js';
-import 'd2l-typography/d2l-typography-shared-styles.js';
 import 'fastdom/fastdom.js';
 import './d2l-pdf-viewer-toolbar-button.js';
-import './localize-behavior.js';
 
-/*
-class D2LPdfViewerToolbar extends mixinBehaviors([
-	D2L.PolymerBehaviors.PdfViewer.LocalizeBehavior,
-	D2L.PolymerBehaviors.FocusableArrowKeysBehavior,
-], PolymerElement) {
-	*/
-class D2LPdfViewerToolbar extends LitElement {
+import { FocusManagementService } from './services/focus-management.js';
+
+class D2LPdfViewerToolbar extends LocalizeMixin(LitElement) {
 	static get properties() {
 		return {
 			fullscreenAvailable: {
 				type: Boolean,
+				attribute: 'fullscreen-available',
 			},
 			isFullscreen: {
 				type: Boolean,
+				attribute: 'is-fullscreen',
 			},
 			minPageScale: {
 				type: Number,
+				attribute: 'min-page-scale',
 			},
 			maxPageScale: {
 				type: Number,
+				attribute: 'max-page-scale',
 			},
 			pagesCount: {
 				type: Number,
+				attribute: 'pages-count',
 			},
 			pageNumber: {
 				type: Number,
+				attribute: 'page-number',
 			},
 			pageScale: {
 				type: Number,
+				attribute: 'page-scale',
 			},
 		};
 	}
@@ -102,16 +101,76 @@ class D2LPdfViewerToolbar extends LitElement {
 				}`;
 	}
 
+	static async getLocalizeResources(langs) {
+		for await (const lang of langs) {
+			let translations;
+			switch (lang) {
+			case 'ar':
+				translations = await import('./lang/ar.js');
+				break;
+			case 'de':
+				translations = await import('./lang/de.js');
+				break;
+			case 'fr':
+			  translations = await import('./lang/fr.js');
+			  break;
+			case 'ja':
+				translations = await import('./lang/ja.js');
+				break;
+			case 'ko':
+				translations = await import('./lang/ko.js');
+				break;
+			case 'nb':
+				translations = await import('./lang/nb.js');
+				break;
+			case 'nl':
+				translations = await import('./lang/nl.js');
+				break;
+			case 'pt':
+				translations = await import('./lang/pt.js');
+				break;
+			case 'sv':
+				translations = await import('./lang/sv.js');
+				break;
+			case 'tr':
+				translations = await import('./lang/tr.js');
+				break;
+			case 'zh-tw':
+				translations = await import('./lang/zh-tw.js');
+				break;
+			case 'zh':
+				translations = await import('./lang/zh.js');
+				break;
+			case 'en':
+			default:
+				translations = await import('./lang/en.js');
+				break;
+			}
+
+			if (translations && translations.val) {
+				return {
+					language: lang,
+					resources: translations.val
+				};
+			}
+		}
+	}
+
 	render() {
+		const fullscreenIcon = this.isFullscreen
+			? 'd2l-tier1:smallscreen'
+			: 'd2l-tier1:fullscreen';
+
 		return html`
 			<div class="outer-container">
 				<div class="toolbar-container">
 					<div class="info-container">
-	<!--
-						<span id="pageNumber" class="toolbar-label" aria-label$=${this.localize('pageLabel')}>
-							[[localize('pageOfPages', 'pageNumber', pageNumber, 'pagesCount', pagesCount)]]
+						<span
+							id="pageNumber"
+							class="toolbar-label"
+							aria-label=${this.localize('pageLabel')}>
+							${this.localize('pageOfPages', 'pageNumber', this.pageNumber, 'pagesCount', this.pagesCount)}
 						</span>
-	-->
 					</div>
 					<div class="control-container" role="group">
 						<d2l-pdf-viewer-toolbar-button
@@ -120,8 +179,8 @@ class D2LPdfViewerToolbar extends LitElement {
 							icon="d2l-tier1:zoom-out"
 							@click=${this._onZoomOutButtonTapped}
 							@keydown=${this._onToolbarButtonKeyDown}
-							?disabled=${this._zoomOutButtonDisabled(pageScale, minPageScale)}
-							tabindex="0">
+							?disabled=${this._zoomOutButtonDisabled(this.pageScale, this.minPageScale)}
+							tabindex=${0}>
 						</d2l-pdf-viewer-toolbar-button>
 						<d2l-pdf-viewer-toolbar-button
 							id="zoomInButton"
@@ -129,8 +188,8 @@ class D2LPdfViewerToolbar extends LitElement {
 							@keydown=${this._onToolbarButtonKeyDown}
 							title=${this.localize('zoomInTitle')}
 							icon="d2l-tier1:zoom-in"
-							?disabled=${this._zoomInButtonDisabled(pageScale, maxPageScale)}
-							tabindex="-1">
+							?disabled=${this._zoomInButtonDisabled(this.pageScale, this.maxPageScale)}
+							tabindex=${-1}>
 						</d2l-pdf-viewer-toolbar-button>
 						<d2l-pdf-viewer-toolbar-button
 							toggle=""
@@ -138,10 +197,10 @@ class D2LPdfViewerToolbar extends LitElement {
 							@click=${this._onToggleFullscreenButtonTapped}
 							@keydown=${this._onToolbarButtonKeyDown}
 							title=${this.localize('presentationModeTitle')}
-							icon=${this._getFullscreenIcon(isFullscreen)}
+							icon=${fullscreenIcon}
 							pressed=${this.isFullscreen ? 'true' : false}
 							?disabled=${!this.fullscreenAvailable}
-							tabindex="-1">
+							tabindex=${-1}>
 						</d2l-pdf-viewer-toolbar-button>
 					</div>
 				</div>
@@ -160,14 +219,23 @@ class D2LPdfViewerToolbar extends LitElement {
 		this.pageScale = 0;
 
 		this.setAttribute('role', 'toolbar');
+
+		this._focusManagementService = new FocusManagementService({
+			focusContainer: this,
+			focusablesProvider: () => this.focusablesProvider(),
+			onBeforeFocus: (el) => this.onBeforeFocus(el),
+		});
+	}
+
+	onBeforeFocus(newFocus) {
+		const focusedButton = this.shadowRoot.querySelector('d2l-pdf-viewer-toolbar-button[tabindex="0"]');
+		focusedButton.tabIndex = -1;
+
+		newFocus.tabIndex = 0;
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		afterNextRender(this, () => {
-			this._initRovingTabIndex();
-		});
 	}
 
 	_zoomOutButtonDisabled(pageScale, minPageScale) {
@@ -196,10 +264,15 @@ class D2LPdfViewerToolbar extends LitElement {
 		);
 	}
 
-	_getFullscreenIcon(isFullscreen) {
-		return isFullscreen
-			? 'd2l-tier1:smallscreen'
-			: 'd2l-tier1:fullscreen';
+	async focusablesProvider() {
+		const toolbarControls = this.shadowRoot.querySelectorAll('d2l-pdf-viewer-toolbar-button');
+		const toolbarButtons = Array.prototype.slice.call(toolbarControls);
+
+		this.arrowKeyFocusablesContainer = this.shadowRoot.querySelector('.control-container');
+
+		const activeButtons = toolbarButtons.filter(button => !button.disabled);
+
+		return [...activeButtons];
 	}
 
 	_initRovingTabIndex() {

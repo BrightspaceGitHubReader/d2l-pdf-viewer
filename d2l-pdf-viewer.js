@@ -1,11 +1,11 @@
 /* global pdfjsViewer, pdfjsLib */
 
 import { css, html, LitElement } from 'lit-element';
-import 'd2l-colors/d2l-colors.js';
-import 'fullscreen-api/fullscreen-api.js';
+import '@brightspace-ui/core/components/colors/colors.js';
+
 import './d2l-pdf-viewer-progress-bar.js';
 import './d2l-pdf-viewer-toolbar.js';
-import { FullscreenService } from './fullscreen.js';
+import { FullscreenService } from './services/fullscreen.js';
 
 /**
  * `<d2l-pdf-viewer>`
@@ -448,7 +448,7 @@ class D2LPdfViewerElement extends LitElement {
 		this._showToolbar = this._isLoaded && this._hasRecentInteraction;
 
 		return html`
-			<span id="pdfName" hidden="">[[_pdfName]]</span>
+			<span id="pdfName" hidden="">${this._pdfName}</span>
 
 			<d2l-pdf-viewer-progress-bar id="progressBar"></d2l-pdf-viewer-progress-bar>
 			<d2l-pdf-viewer-toolbar
@@ -466,14 +466,7 @@ class D2LPdfViewerElement extends LitElement {
 				<div id="viewer" class="pdfViewer" tabindex="0"></div>
 			</div>`;
 	}
-/*
-	static get hostAttributes() {
-		return {
-			'role': 'document',
-			'aria-describedby': 'pdfName',
-		};
-	}
-*/
+
 	static get properties() {
 		return {
 			loader: {
@@ -481,21 +474,26 @@ class D2LPdfViewerElement extends LitElement {
 			},
 			minPageScale: {
 				type: Number,
+				attribute: 'min-page-scale',
 			},
 			maxPageScale: {
 				type: Number,
+				attribute: 'max-page-scale',
 			},
 			pdfjsBasePath: {
 				type: String,
+				attribute: 'pdfjs-base-path',
 			},
 			pdfJsWorkerSrc: {
 				type: String,
+				attribute: 'pdfjs-worker-src',
 			},
 			src: {
 				type: String,
 			},
 			useCdn: {
 				type: Boolean,
+				attribute: 'use-cdn',
 			},
 			_isFullscreen: {
 				type: Boolean,
@@ -573,14 +571,14 @@ class D2LPdfViewerElement extends LitElement {
 		this.toolbar = this.shadowRoot.getElementById('toolbar');
 		this.progressBar = this.shadowRoot.getElementById('progressBar');
 
-		this.viewerContainer.addEventListener('pagesinit', () => this._onPagesInitEvent());
-		this.viewerContainer.addEventListener('pagechange', () => this._onPageChangeEvent());
+		this.viewerContainer.addEventListener('pagesinit', (e) => this._onPagesInitEvent(e));
+		this.viewerContainer.addEventListener('pagechange', (e) => this._onPageChangeEvent(e));
 
-		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', () => this._onZoomInEvent());
-		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', () => this._onZoomOutEvent());
-		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', () => this._onFullscreenEvent());
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', (e) => this._onZoomInEvent(e));
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', (e) => this._onZoomOutEvent(e));
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', (e) => this._onFullscreenEvent(e));
 
-		this.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', () => this._onProgressAnimationCompleteEvent());
+		this.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', (e) => this._onProgressAnimationCompleteEvent(e));
 
 		this._loadPdfJs();
 

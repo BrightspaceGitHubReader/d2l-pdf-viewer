@@ -11,7 +11,7 @@ Polymer-based web component progress bar
 */
 import { PolymerElement, html } from '@polymer/polymer';
 import 'fastdom/fastdom.js';
-import 'd2l-colors/d2l-colors.js';
+import '@brightspace-ui/core/components/colors/colors.js';
 
 const indeterminateStates = Object.freeze({
 	RESET: 0,
