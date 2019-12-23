@@ -728,9 +728,7 @@ class D2LPdfViewerElement extends PolymerElement {
 		// Add event listeners before loading document
 		this._addEventListeners();
 
-		//if (this.src) {
-			this._srcChanged(this.src);
-		//}
+		this._srcChanged(this.src);
 
 		this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-initialized', {
 			bubbles: true,
