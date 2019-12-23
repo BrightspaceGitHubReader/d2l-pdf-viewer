@@ -1,29 +1,37 @@
-const FULLSCREEN_CHANGE_EVENTS = [
+const FULLSCREEN_CHANGE_EVENTS = Object.freeze([
 	'fullscreenchange',
 	'webkitfullscreenchange',
 	'mozfullscreenchange',
 	'MSFullscreenChange',
-];
+]);
 
 /**
  * Toggle between full screen and normal display mode.
  * MUST be triggered directly by user interaction
  */
-export class FullscreenAPI {
+export class FullscreenService {
 	constructor(opts) {
 		this.target = opts.target;
 		this.onFullscreenChangedCallback = opts.onFullscreenChangedCallback;
 		this.__onFullscreenChanged = this.onFullscreenChanged.bind(this);
 
+		if (this.onFullscreenChangedCallback) {
+			this.onFullscreenChangedCallback();
+		}
+	}
+
+	init() {
 		if (this.isFullscreenAvailable) {
 			FULLSCREEN_CHANGE_EVENTS.forEach(changeEvent => {
 				document.addEventListener(changeEvent, this.__onFullscreenChanged);
 			});
 		}
+	}
 
-		if (this.onFullscreenChangedCallback) {
-			this.onFullscreenChangedCallback();
-		}
+	dispose() {
+		FULLSCREEN_CHANGE_EVENTS.forEach(changeEvent => {
+			document.removeEventListener(changeEvent, this.__onFullscreenChanged);
+		});
 	}
 
 	toggleFullscreen() {

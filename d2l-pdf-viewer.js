@@ -6,7 +6,7 @@ import 'd2l-colors/d2l-colors.js';
 import 'fullscreen-api/fullscreen-api.js';
 import './d2l-pdf-viewer-progress-bar.js';
 import './d2l-pdf-viewer-toolbar.js';
-import { FullscreenAPI } from './fullscreen.js';
+import { FullscreenService } from './fullscreen.js';
 
 const $_documentContainer = document.createElement('template');
 
@@ -48,10 +48,6 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer">
 
 			d2l-pdf-viewer-progress-bar {
 				--d2l-pdf-viewer-progress-bar-primary-color: var(--d2l-color-celestine);
-			}
-
-			[hidden] {
-				display: none !important;
 			}
 
 			/*
@@ -559,12 +555,12 @@ Polymer({
 		this.toolbar = this.shadowRoot.getElementById('toolbar');
 		this.progressBar = this.shadowRoot.getElementById('progressBar');
 
-		this.fullscreenApi = new FullscreenAPI({
+		this.fullscreenService = new FullscreenService({
 			target: this,
 			onFullscreenChangedCallback: this._onFullscreenChanged.bind(this),
 		});
 
-		this._isFullscreenAvailable = this.fullscreenApi.isFullscreenAvailable;
+		this._isFullscreenAvailable = this.fullscreenService.isFullscreenAvailable;
 
 		let initializeTask;
 
@@ -600,6 +596,33 @@ Polymer({
 					console.error(e); //eslint-disable-line
 				}
 			});
+	},
+	attached: function() {
+		this.fullscreenService.init();
+		this._addEventListeners();
+
+		if (!this._pdfViewer) {
+			const progressBar = this.progressBar;
+			progressBar.hidden = false;
+			progressBar.indeterminate = true;
+			progressBar.start();
+		}
+	},
+	detached: function() {
+		this.fullscreenService.dispose();
+
+		window.removeEventListener('resize', this._resize);
+
+		this.viewerContainer.removeEventListener('pagesinit', this._onPagesInitEvent);
+		this.viewerContainer.removeEventListener('pagechange', this._onPageChangeEvent);
+
+		this.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
+		this.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+		this.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
+
+		this.progressBar.removeEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
+
+		this._addedEventListeners = false;
 	},
 	_loadDynamicImports: function() {
 		if (this.useCdn || this.pdfjsBasePath) {
@@ -683,30 +706,6 @@ Polymer({
 		this.dispatchEvent(new CustomEvent('d2l-pdf-viewer-initialized', {
 			bubbles: true,
 		}));
-	},
-	attached: function() {
-		this._addEventListeners();
-
-		if (!this._pdfViewer) {
-			const progressBar = this.progressBar;
-			progressBar.hidden = false;
-			progressBar.indeterminate = true;
-			progressBar.start();
-		}
-	},
-	detached: function() {
-		window.removeEventListener('resize', this._resize);
-
-		this.viewerContainer.removeEventListener('pagesinit', this._onPagesInitEvent);
-		this.viewerContainer.removeEventListener('pagechange', this._onPageChangeEvent);
-
-		this.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
-		this.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
-		this.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
-
-		this.progressBar.removeEventListener('d2l-pdf-viewer-progress-bar-animation-complete', this._onProgressAnimationCompleteEvent);
-
-		this._addedEventListeners = false;
 	},
 	_addEventListeners: function() {
 		if (!this._boundListeners) {
@@ -850,7 +849,7 @@ Polymer({
 		if (!this._pdfViewer) {
 			return;
 		}
-		this.fullscreenApi.toggleFullscreen();
+		this.fullscreenService.toggleFullscreen();
 		this._onInteraction();
 
 		// If scale is a special type (eg. 'page-width'), ensure we maintain that
