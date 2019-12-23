@@ -108,6 +108,16 @@ class D2LPdfViewerProgressBarElement extends PolymerElement {
 		this._onTransitionEndEvent = this._onTransitionEndEvent.bind(this);
 	}
 
+	ready() {
+		super.ready();
+
+		this.progressBar = this.shadowRoot.getElementById('progressBar');
+		this.progressBar.addEventListener('transitionend', this._onTransitionEndEvent);
+
+		this._updateProgressBar(this.indeterminate, this.autostart);
+	}
+
+	/*
 	connectedCallback() {
 		super.connectedCallback();
 
@@ -116,6 +126,7 @@ class D2LPdfViewerProgressBarElement extends PolymerElement {
 
 		this._updateProgressBar(this.indeterminate, this.autostart);
 	}
+	*/
 
 	/**
 	* For indeterminate progress bars, starts or restarts the progress bar animation.
@@ -185,6 +196,9 @@ class D2LPdfViewerProgressBarElement extends PolymerElement {
 			if (autostart) {
 				this.start();
 			}
+		} else {
+			this.progressBar.classList.remove('indeterminate-in-progress');
+			this.progressBar.classList.remove('indeterminate-complete');
 		}
 	}
 

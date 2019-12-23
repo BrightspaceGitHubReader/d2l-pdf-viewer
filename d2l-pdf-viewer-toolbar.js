@@ -156,7 +156,7 @@ class D2LPdfViewerToolbar extends mixinBehaviors([
 	}
 
 	connectedCallback() {
-		super();
+		super.connectedCallback();
 
 		afterNextRender(this, () => {
 			this._initRovingTabIndex();
