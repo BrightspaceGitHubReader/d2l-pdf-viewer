@@ -9,9 +9,9 @@ Polymer-based web component progress bar
   from HTML and may be out of place here. Review them and
   then delete this comment!
 */
-import { PolymerElement, html } from '@polymer/polymer';
-import 'fastdom/fastdom.js';
+import { css, html, LitElement } from 'lit-element/lit-element.js';
 import '@brightspace-ui/core/components/colors/colors.js';
+import 'fastdom/fastdom.js';
 
 const indeterminateStates = Object.freeze({
 	RESET: 0,
@@ -19,37 +19,31 @@ const indeterminateStates = Object.freeze({
 	COMPLETE: 2
 });
 
-class D2LPdfViewerProgressBarElement extends PolymerElement {
-	static get template() {
-		return html`
-			<style>
-				:host {
-					background-color: var(--d2l-color-sylvite);
-					display: block;
-					overflow: hidden;
-				}
-				:host, .progress-bar {
-					height: 4px;
-				}
-				.progress-bar {
-					background-color: var(--d2l-pdf-viewer-progress-bar-primary-color, var(--d2l-color-corundum));
-					transform: translate(-100%, 0);
-					will-change: transform;
-				}
-				.determinate {
-					transition: transform 50ms ease-out;
-				}
-				.indeterminate-in-progress {
-					transition: transform 10s cubic-bezier(.16,1,.4,1);
-				}
-				.indeterminate-complete {
-					transition: transform 300ms ease-in;
-				}
-			</style>
-			<div>
-				<div id="progressBar" class="progress-bar"></div>
-			</div>
-		`;
+class D2LPdfViewerProgressBarElement extends LitElement {
+	static get styles() {
+		return css`
+			:host {
+				background-color: var(--d2l-color-sylvite);
+				display: block;
+				overflow: hidden;
+			}
+			:host, .progress-bar {
+				height: 4px;
+			}
+			.progress-bar {
+				background-color: var(--d2l-pdf-viewer-progress-bar-primary-color, var(--d2l-color-corundum));
+				transform: translate(-100%, 0);
+				will-change: transform;
+			}
+			.determinate {
+				transition: transform 50ms ease-out;
+			}
+			.indeterminate-in-progress {
+				transition: transform 10s cubic-bezier(.16,1,.4,1);
+			}
+			.indeterminate-complete {
+				transition: transform 300ms ease-in;
+			}`;
 	}
 
 	static get properties() {
@@ -59,32 +53,36 @@ class D2LPdfViewerProgressBarElement extends PolymerElement {
 			*/
 			autostart: {
 				type: Boolean,
-				reflectToAttribute: true,
-				value: false
+				reflect: true,
 			},
 			/**
 			* If true, indicates the process is indeterminate.
 			*/
 			indeterminate: {
 				type: Boolean,
-				reflectToAttribute: true,
-				value: false
+				reflect: true,
 			},
 			/**
 			* Value which indicates the action is 100% complete. (determinate only)
 			*/
 			max: {
 				type: Number,
-				value: 1
 			},
 			/**
 			* The current progress of the action. (determinate only)
 			*/
 			value: {
 				type: Number,
-				value: 0
 			}
 		};
+	}
+
+	render() {
+		return html`
+			<div>
+				<div id="progressBar" class="progress-bar"></div>
+			</div>
+		`;
 	}
 
 	static get observers() {
@@ -94,39 +92,39 @@ class D2LPdfViewerProgressBarElement extends PolymerElement {
 		];
 	}
 
-	static get hostAttributes() {
-		return {
-			role: 'progressbar',
-		};
+	updated(changedProperties) {
+		const changed = Array.from(Object(changedProperties).keys());
+
+		if (changed.includes('indeterminate') || changed.includes('autostart')) {
+			this._onConfigChanged(this.indeterminate, this.autostart);
+		}
+
+		if (changed.includes('value') || changed.includes('max')) {
+			this._onProgressChanged(this.value, this.max);
+		}
 	}
 
 	constructor() {
 		super();
+
+		this.indeterminate = false;
+		this.autostart = true;
+		this.max = 1;
+		this.value = 0;
+
+		this.setAttribute('role', 'progressbar');
 
 		this._progress = 0;
 		this._indeterminateState = indeterminateStates.RESET;
 		this._onTransitionEndEvent = this._onTransitionEndEvent.bind(this);
 	}
 
-	ready() {
-		super.ready();
-
+	firstUpdated() {
 		this.progressBar = this.shadowRoot.getElementById('progressBar');
 		this.progressBar.addEventListener('transitionend', this._onTransitionEndEvent);
 
 		this._updateProgressBar(this.indeterminate, this.autostart);
 	}
-
-	/*
-	connectedCallback() {
-		super.connectedCallback();
-
-		this.progressBar = this.shadowRoot.getElementById('progressBar');
-		this.progressBar.addEventListener('transitionend', this._onTransitionEndEvent);
-
-		this._updateProgressBar(this.indeterminate, this.autostart);
-	}
-	*/
 
 	/**
 	* For indeterminate progress bars, starts or restarts the progress bar animation.

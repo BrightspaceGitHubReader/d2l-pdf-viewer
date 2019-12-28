@@ -40,102 +40,100 @@ $_documentContainer.innerHTML = `<style>
 		</style>`;
 
 document.body.appendChild($_documentContainer.content);
-</script>
+		</script>
 	</head>
 	<body unresolved>
 		<script type="module">
-const $_documentContainer = document.createElement('template');
+			import '@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
+			import '@polymer/iron-demo-helpers/demo-snippet.js';
+			import '@brightspace-ui/core/components/colors/colors.js';
+			import '../d2l-pdf-viewer-progress-bar.js';
 
-$_documentContainer.innerHTML = `<div class="vertical-section-container centered d2l-typography">
-			<h3>d2l-pdf-viewer-progress-bar</h3>
+			const $_documentContainer = document.createElement('template');
 
-			<h4>Indeterminate</h4>
-			<demo-snippet>
-				<template strip-whitespace="">
-					<custom-style>
-						<style is="custom-style">
-							d2l-pdf-viewer-progress-bar.celestine {
-								--d2l-pdf-viewer-progress-bar-primary-color: var(--d2l-color-celestine);
-							}
+			$_documentContainer.innerHTML =
+				`<div class="vertical-section-container centered d2l-typography">
+					<h3>d2l-pdf-viewer-progress-bar</h3>
 
-							d2l-pdf-viewer-progress-bar.red {
-								--d2l-pdf-viewer-progress-bar-primary-color: red;
-							}
-						</style>
-					</custom-style>
-					<d2l-pdf-viewer-progress-bar indeterminate="" autostart=""></d2l-pdf-viewer-progress-bar>
-					<d2l-pdf-viewer-progress-bar indeterminate="" autostart="" class="celestine"></d2l-pdf-viewer-progress-bar>
-					<d2l-pdf-viewer-progress-bar indeterminate="" autostart="" class="red"></d2l-pdf-viewer-progress-bar>
-					<button id="finishButton" onclick="finishIndeterminate();">Force Finish</button>
-				</template>
-			</demo-snippet>
+					<h4>Indeterminate</h4>
+					<demo-snippet>
+						<template strip-whitespace="">
+							<custom-style>
+								<style is="custom-style">
+									d2l-pdf-viewer-progress-bar.celestine {
+										--d2l-pdf-viewer-progress-bar-primary-color: var(--d2l-color-celestine);
+									}
 
-			<h4>Determinate</h4>
-			<demo-snippet>
-				<template strip-whitespace="">
-					<d2l-pdf-viewer-progress-bar id="determinate" max="100"></d2l-pdf-viewer-progress-bar>
-					<button id="startButton" onclick="startDeterminate();">Start</button>
-				</template>
-			</demo-snippet>
-		</div>`;
+									d2l-pdf-viewer-progress-bar.red {
+										--d2l-pdf-viewer-progress-bar-primary-color: red;
+									}
+								</style>
+							</custom-style>
+							<d2l-pdf-viewer-progress-bar indeterminate="" autostart=""></d2l-pdf-viewer-progress-bar>
+							<d2l-pdf-viewer-progress-bar indeterminate="" autostart="" class="celestine"></d2l-pdf-viewer-progress-bar>
+							<d2l-pdf-viewer-progress-bar indeterminate="" autostart="" class="red"></d2l-pdf-viewer-progress-bar>
+							<button id="finishButton" onclick="finishIndeterminate();">Force Finish</button>
+						</template>
+					</demo-snippet>
 
-document.body.appendChild($_documentContainer.content);
-</script>
+					<h4>Determinate</h4>
+					<demo-snippet>
+						<template strip-whitespace="">
+							<d2l-pdf-viewer-progress-bar id="determinate" max="100"></d2l-pdf-viewer-progress-bar>
+							<button id="startButton" onclick="startDeterminate();">Start</button>
+						</template>
+					</demo-snippet>
+				</div>`;
 
-		<script type="module">
-import '@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
-import '@polymer/iron-demo-helpers/demo-snippet.js';
-import '@brightspace-ui/core/components/colors/colors.js';
-import '../d2l-pdf-viewer-progress-bar.js';
+			document.body.appendChild($_documentContainer.content);
 
-let determinateProgressBar;
-let indeterminateFinishButton;
-let indeterminateProgressBars;
-let progressIntervalHandle;
+			/* eslint-disable no-unused-vars */
+			customElements.whenDefined('demo-snippet').then(() => {
+				const determinateProgressBar = document.getElementById('determinate');
+				const indeterminateFinishButton = document.getElementById('finishButton');
+				const indeterminateProgressBars = document.querySelectorAll('[indeterminate]');
 
-/* eslint-disable no-unused-vars */
-function startDeterminate() {
-	determinateProgressBar.value = 0;
+				let progressIntervalHandle;
 
-	stopDeterminate();
+				window.startDeterminate = () => {
+					determinateProgressBar.value = 0;
 
-	progressIntervalHandle = setInterval(() => {
-		determinateProgressBar.value = Math.min(determinateProgressBar.max, determinateProgressBar.value + Math.random() * 10 + 5);
+					stopDeterminate();
 
-		if (determinateProgressBar.value >= determinateProgressBar.max) {
-			stopDeterminate();
-		}
-	}, 500);
-}
+					progressIntervalHandle = setInterval(() => {
+						determinateProgressBar.value = Math.min(determinateProgressBar.max, determinateProgressBar.value + Math.random() * 10 + 5);
 
-function stopDeterminate() {
-	clearInterval(progressIntervalHandle);
-	progressIntervalHandle = null;
-}
+						if (determinateProgressBar.value >= determinateProgressBar.max) {
+							stopDeterminate();
+						}
+					}, 500);
+				}
 
-function startIndeterminate() {
-	indeterminateProgressBars.forEach(progressBar => {
-		progressBar.start();
-	});
+				window.stopDeterminate = () => {
+					clearInterval(progressIntervalHandle);
+					progressIntervalHandle = null;
+				}
 
-	indeterminateFinishButton.textContent = 'Force Finish';
-	indeterminateFinishButton.onclick = () => finishIndeterminate();
-}
+				window.startIndeterminate = () => {
+					indeterminateProgressBars.forEach(progressBar => {
+						progressBar.start();
+					});
 
-function finishIndeterminate() {
-	indeterminateProgressBars[0].addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', () => {
-		indeterminateFinishButton.textContent = 'Restart';
-		indeterminateFinishButton.onclick = () => startIndeterminate();
-	});
+					indeterminateFinishButton.textContent = 'Force Finish';
+					indeterminateFinishButton.onclick = () => finishIndeterminate();
+				}
 
-	indeterminateProgressBars.forEach(progressBar => {
-		progressBar.finish();
-	});
-}
+				window.finishIndeterminate = () => {
+					indeterminateProgressBars[0].addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', () => {
+						indeterminateFinishButton.textContent = 'Restart';
+						indeterminateFinishButton.onclick = () => startIndeterminate();
+					});
 
-determinateProgressBar = document.getElementById('determinate');
-indeterminateFinishButton = document.getElementById('finishButton');
-indeterminateProgressBars = document.querySelectorAll('[indeterminate]');
-</script>
+					indeterminateProgressBars.forEach(progressBar => {
+						progressBar.finish();
+					});
+				}
+			});
+		</script>
 	</body>
 </html>

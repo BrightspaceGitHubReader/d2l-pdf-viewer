@@ -5,6 +5,20 @@ const FULLSCREEN_CHANGE_EVENTS = Object.freeze([
 	'MSFullscreenChange',
 ]);
 
+const REQUEST_FULLSCREEN_FUNCTIONS = Object.freeze([
+	'requestFullscreen',
+	'webkitRequestFullscreen',
+	'mozRequestFullScreen',
+	'msRequestFullscreen',
+]);
+
+const EXIT_FULLSCREEN_FUNCTIONS = Object.freeze([
+	'exitFullscreen',
+	'webkitExitFullscreen',
+	'mozCancelFullScreen',
+	'msExitFullscreen',
+]);
+
 /**
  * Toggle between full screen and normal display mode.
  * MUST be triggered directly by user interaction
@@ -13,7 +27,7 @@ export class FullscreenService {
 	constructor(opts) {
 		this.target = opts.target;
 		this.onFullscreenChangedCallback = opts.onFullscreenChangedCallback;
-		this.__onFullscreenChanged = this.onFullscreenChanged.bind(this);
+		this.__onFullscreenChangedBound = this.onFullscreenChanged.bind(this);
 
 		if (this.onFullscreenChangedCallback) {
 			this.onFullscreenChangedCallback();
@@ -23,43 +37,34 @@ export class FullscreenService {
 	init() {
 		if (this.isFullscreenAvailable) {
 			FULLSCREEN_CHANGE_EVENTS.forEach(changeEvent => {
-				document.addEventListener(changeEvent, this.__onFullscreenChanged);
+				document.addEventListener(changeEvent, this.__onFullscreenChangedBound);
 			});
 		}
 	}
 
 	dispose() {
 		FULLSCREEN_CHANGE_EVENTS.forEach(changeEvent => {
-			document.removeEventListener(changeEvent, this.__onFullscreenChanged);
+			document.removeEventListener(changeEvent, this.__onFullscreenChangedBound);
 		});
 	}
 
 	toggleFullscreen() {
 		if (this.isFullscreenAvailable) {
 			if (!this.isFullscreenToggled) {
-				// We are not in full screen mode, let's request it
-				// But first let's grad a hold on the target
 				const targetElement = this.target || document.documentElement;
 
-				if (targetElement.requestFullscreen) {
-					targetElement.requestFullscreen();
-				} else if (targetElement.webkitRequestFullscreen) {
-					targetElement.webkitRequestFullscreen();
-				} else if (targetElement.mozRequestFullScreen) {
-					targetElement.mozRequestFullScreen();
-				} else if (targetElement.msRequestFullscreen) {
-					targetElement.msRequestFullscreen();
+				for (const requestFullscreen of REQUEST_FULLSCREEN_FUNCTIONS) {
+					if (targetElement[requestFullscreen]) {
+						targetElement[requestFullscreen]();
+						break;
+					}
 				}
 			} else {
-				// We are in full screen mode, let's exit
-				if (document.exitFullscreen) {
-					document.exitFullscreen();
-				} else if (document.webkitExitFullscreen) {
-					document.webkitExitFullscreen();
-				} else if (document.mozCancelFullScreen) {
-					document.mozCancelFullScreen();
-				} else if (document.msExitFullscreen) {
-					document.msExitFullscreen();
+				for (const exitFullscreen of EXIT_FULLSCREEN_FUNCTIONS) {
+					if (document[exitFullscreen]) {
+						document[exitFullscreen]();
+						break;
+					}
 				}
 			}
 		}

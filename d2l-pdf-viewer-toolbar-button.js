@@ -7,23 +7,20 @@ class D2LPdfViewerToolbarButtonElement extends LitElement {
 		return {
 			ariaLabel: {
 				type: String,
-				reflectToAttribute: true
+				reflect: true
 			},
 			disabled: {
 				type: Boolean,
-				value: false,
-				reflectToAttribute: true
+				reflect: true
 			},
 			icon: {
 				type: String
 			},
 			toggle: {
 				type: Boolean,
-				value: false
 			},
 			pressed: {
 				type: Boolean,
-				value: false
 			},
 			title: {
 				type: String
@@ -62,6 +59,11 @@ class D2LPdfViewerToolbarButtonElement extends LitElement {
 
 	constructor() {
 		super();
+
+		this.icon = '';
+		this.pressed = false;
+		this.disabled = false;
+		this.toggle = false;
 
 		this.setAttribute('role', 'button');
 
