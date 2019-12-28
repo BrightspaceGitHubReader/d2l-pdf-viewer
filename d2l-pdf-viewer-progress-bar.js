@@ -11,7 +11,6 @@ Polymer-based web component progress bar
 */
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import '@brightspace-ui/core/components/colors/colors.js';
-import 'fastdom/fastdom.js';
 
 const indeterminateStates = Object.freeze({
 	RESET: 0,
@@ -230,9 +229,7 @@ class D2LPdfViewerProgressBarElement extends LitElement {
 	set _progress(val) {
 		this.__progress = Math.max(0, Math.min(val, 100));
 
-		fastdom.mutate(() => {
-			this.progressBar.style.transform = `translate(-${100 - this.__progress}%,0)`;
-		});
+		this.progressBar.style.transform = `translate(-${100 - this.__progress}%,0)`;
 	}
 
 	get _progress() {

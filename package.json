@@ -5,9 +5,8 @@
   },
   "name": "d2l-pdf-viewer",
   "scripts": {
-    "lint": "npm run lint:wc && npm run lint:js",
+    "lint": "npm run lint:js",
     "lint:js": "eslint . --ext .js,.html test/**/*.js test/**/*.html demo/**/*.js demo/**/*.html",
-    "lint:wc": "NODE_OPTIONS=\"--max-old-space-size=3072\" polymer lint -i \"./d2l-*\" \"./test\" \"./demo\"",
     "serve": "polymer serve",
     "test:polymer:local": "polymer test --skip-plugin sauce",
     "test": "npm run lint && npm run test:polymer:local"
@@ -41,7 +40,6 @@
     "@brightspace-ui/core": "^1.23.1",
     "@polymer/polymer": "^3.0.0",
     "d2l-polymer-behaviors": "Brightspace/d2l-polymer-behaviors-ui#semver:^2",
-    "fastdom": "^1.0.8",
     "lit-element": "^2.2.1"
   },
   "peerDependencies": {

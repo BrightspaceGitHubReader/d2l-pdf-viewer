@@ -3,7 +3,6 @@ import { LocalizeMixin } from '@brightspace-ui/core/mixins/localize-mixin.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/typography/styles.js';
 import 'd2l-polymer-behaviors/d2l-dom.js';
-import 'fastdom/fastdom.js';
 import './d2l-pdf-viewer-toolbar-button.js';
 
 import { FocusManagementService } from './services/focus-management.js';
@@ -283,11 +282,9 @@ class D2LPdfViewerToolbar extends LocalizeMixin(LitElement) {
 
 		this.arrowKeyFocusablesProvider = () => {
 			return new Promise((resolve) => {
-				fastdom.measure(() => {
-					const activeButtons = toolbarButtons.filter(button => !button.disabled);
+				const activeButtons = toolbarButtons.filter(button => !button.disabled);
 
-					resolve(activeButtons);
-				});
+				resolve(activeButtons);
 			});
 		};
 	}
