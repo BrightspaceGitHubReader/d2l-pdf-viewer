@@ -18,7 +18,7 @@ const indeterminateStates = Object.freeze({
 	COMPLETE: 2
 });
 
-class D2LPdfViewerProgressBarElement extends LitElement {
+export class D2LPdfViewerProgressBarElement extends LitElement {
 	static get styles() {
 		return css`
 			:host {
@@ -84,21 +84,12 @@ class D2LPdfViewerProgressBarElement extends LitElement {
 		`;
 	}
 
-	static get observers() {
-		return [
-			'_onConfigChanged(indeterminate, autostart)',
-			'_onProgressChanged(value, max)',
-		];
-	}
-
-	updated(changedProperties) {
-		const changed = Array.from(Object(changedProperties).keys());
-
-		if (changed.includes('indeterminate') || changed.includes('autostart')) {
+	updated(changed) {
+		if (changed.has('indeterminate') || changed.has('autostart')) {
 			this._onConfigChanged(this.indeterminate, this.autostart);
 		}
 
-		if (changed.includes('value') || changed.includes('max')) {
+		if (changed.has('value') || changed.has('max')) {
 			this._onProgressChanged(this.value, this.max);
 		}
 	}
@@ -113,7 +104,6 @@ class D2LPdfViewerProgressBarElement extends LitElement {
 
 		this.setAttribute('role', 'progressbar');
 
-		this._progress = 0;
 		this._indeterminateState = indeterminateStates.RESET;
 		this._onTransitionEndEvent = this._onTransitionEndEvent.bind(this);
 	}
@@ -122,6 +112,7 @@ class D2LPdfViewerProgressBarElement extends LitElement {
 		this.progressBar = this.shadowRoot.getElementById('progressBar');
 		this.progressBar.addEventListener('transitionend', this._onTransitionEndEvent);
 
+		this._progress = 0;
 		this._updateProgressBar(this.indeterminate, this.autostart);
 	}
 

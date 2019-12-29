@@ -197,7 +197,7 @@ class D2LPdfViewerToolbar extends LocalizeMixin(LitElement) {
 							@keydown=${this._onToolbarButtonKeyDown}
 							title=${this.localize('presentationModeTitle')}
 							icon=${fullscreenIcon}
-							pressed=${this.isFullscreen ? 'true' : false}
+							?pressed=${this.isFullscreen}
 							?disabled=${!this.fullscreenAvailable}
 							tabindex=${-1}>
 						</d2l-pdf-viewer-toolbar-button>

@@ -3,7 +3,7 @@
 import { css, html, LitElement } from 'lit-element';
 import '@brightspace-ui/core/components/colors/colors.js';
 
-import './d2l-pdf-viewer-progress-bar.js';
+import { D2LPdfViewerProgressBarElement } from './d2l-pdf-viewer-progress-bar.js';
 import './d2l-pdf-viewer-toolbar.js';
 import { FullscreenService } from './services/fullscreen.js';
 
@@ -544,19 +544,34 @@ class D2LPdfViewerElement extends LitElement {
 		this._hasRecentInteraction = false;
 		this._pdfName = '';
 
+		/**
+         * @type {Partial<D2LPdfViewerProgressBarElement> | null}
+         */
+		this.progressBar = null;
+
+		/**
+		 * @type string?
+		 */
+		this.pdfJsWorkerSrc = null;
+
+		/**
+		 * @type string?
+		 */
+		this.pdfjsBasePath = null;
+
 		// Set host attributes
 		this.setAttribute('role', 'document');
 		this.setAttribute('aria-describedby', 'pdfName');
 
 		// Set host event listeners
-		this.addEventListener('mouseenter', (e) => this._onMouseEnter(e));
+		this.addEventListener('mouseenter', () => this._onMouseEnter());
 		this.addEventListener('mouseleave', (e) => this._onMouseLeave(e));
-		this.addEventListener('touchstart', (e) => this._onInteraction(e));
-		this.addEventListener('touchend', (e) => this._onInteraction(e));
-		this.addEventListener('touchmove', (e) => this._onInteraction(e));
-		this.addEventListener('focusin', (e) => this._onInteraction(e));
+		this.addEventListener('touchstart', () => this._onInteraction());
+		this.addEventListener('touchend', () => this._onInteraction());
+		this.addEventListener('touchmove', () => this._onInteraction());
+		this.addEventListener('focusin', () => this._onInteraction());
 		this.addEventListener('focusout', (e) => this._onFocusOut(e));
-		this.addEventListener('d2l-pdf-viewer-button-interaction', (e) => this._onInteraction(e));
+		this.addEventListener('d2l-pdf-viewer-button-interaction', () => this._onInteraction());
 
 		this._boundResize = this._resize.bind(this);
 
@@ -574,11 +589,11 @@ class D2LPdfViewerElement extends LitElement {
 		this.viewerContainer.addEventListener('pagesinit', (e) => this._onPagesInitEvent(e));
 		this.viewerContainer.addEventListener('pagechange', (e) => this._onPageChangeEvent(e));
 
-		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', (e) => this._onZoomInEvent(e));
-		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', (e) => this._onZoomOutEvent(e));
-		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', (e) => this._onFullscreenEvent(e));
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', () => this._onZoomInEvent());
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', () => this._onZoomOutEvent());
+		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', () => this._onFullscreenEvent());
 
-		this.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', (e) => this._onProgressAnimationCompleteEvent(e));
+		this.progressBar.addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', () => this._onProgressAnimationCompleteEvent());
 
 		this._loadPdfJs();
 

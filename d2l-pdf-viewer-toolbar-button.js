@@ -76,12 +76,12 @@ class D2LPdfViewerToolbarButtonElement extends LitElement {
 			<d2l-icon icon=${this.icon}></d2l-icon>`;
 	}
 
-	updated(changedProperties) {
-		if (typeof changedProperties.toggle === 'boolean') {
-			if (!this.toggle) {
-				this.removeAttribute('aria-pressed');
+	updated(changed) {
+		if (changed.has('toggle')) {
+			if (typeof this.toggle === 'boolean') {
+				this.setAttribute('aria-pressed', this.pressed ? 'true' : 'false');
 			} else {
-				this.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+				this.removeAttribute('aria-pressed');
 			}
 		}
 	}
