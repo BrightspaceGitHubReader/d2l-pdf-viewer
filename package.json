@@ -8,8 +8,8 @@
     "lint": "npm run lint:js",
     "lint:js": "eslint . --ext .js,.html test/**/*.js test/**/*.html demo/**/*.js demo/**/*.html",
     "serve": "polymer serve",
-    "test:polymer:local": "polymer test --skip-plugin sauce",
-    "test": "npm run lint && npm run test:polymer:local"
+    "test:local": "polymer test --skip-plugin sauce",
+    "test": "npm run lint && npm run test:local"
   },
   "author": "D2L Corporation",
   "license": "Apache-2.0",
@@ -40,7 +40,6 @@
   "dependencies": {
     "@brightspace-ui/core": "^1.23.1",
     "@polymer/polymer": "^3.0.0",
-    "d2l-polymer-behaviors": "Brightspace/d2l-polymer-behaviors-ui#semver:^2",
     "lit-element": "^2.2.1"
   },
   "peerDependencies": {

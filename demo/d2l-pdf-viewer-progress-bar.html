@@ -9,41 +9,34 @@
 		<script type="module" src="../../@polymer/iron-demo-helpers/demo-snippet.js"></script>
 		<script type="module" src="../../@brightspace-ui/core/components/colors/colors.js"></script>
 		<script type="module" src="../d2l-pdf-viewer-progress-bar.js"></script>
-		<!-- FIXME(polymer-modulizer):
-		These imperative modules that innerHTML your HTML are
-		a hacky way to be sure that any mixins in included style
-		modules are ready before any elements that reference them are
-		instantiated, otherwise the CSS @apply mixin polyfill won't be
-		able to expand the underlying CSS custom properties.
-		See: https://github.com/Polymer/polymer-modulizer/issues/154
-		-->
-	<script type="module">
-const $_documentContainer = document.createElement('template');
-
-$_documentContainer.innerHTML = `<custom-style>
-			<style is="custom-style" include="demo-pages-shared-styles"></style>
-		</custom-style>`;
-
-document.body.appendChild($_documentContainer.content);
-</script>
 		<script type="module">
-const $_documentContainer = document.createElement('template');
+			const $_documentContainer = document.createElement('template');
 
-$_documentContainer.innerHTML = `<style>
-			html {
-				font-size: 20px;
-			}
+			$_documentContainer.innerHTML = `<custom-style>
+						<style is="custom-style" include="demo-pages-shared-styles"></style>
+					</custom-style>`;
 
-			d2l-pdf-viewer-progress-bar {
-				margin: 10px 0 10px 0;
-			}
-		</style>`;
+			document.body.appendChild($_documentContainer.content);
+		</script>
+		<script type="module">
+			const $_documentContainer = document.createElement('template');
 
-document.body.appendChild($_documentContainer.content);
+			$_documentContainer.innerHTML = `<style>
+				html {
+					font-size: 20px;
+				}
+
+				d2l-pdf-viewer-progress-bar {
+					margin: 10px 0 10px 0;
+				}
+			</style>`;
+
+			document.body.appendChild($_documentContainer.content);
 		</script>
 	</head>
 	<body unresolved>
 		<script type="module">
+			/* eslint-disable */
 			import '@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
 			import '@polymer/iron-demo-helpers/demo-snippet.js';
 			import '@brightspace-ui/core/components/colors/colors.js';
@@ -107,12 +100,12 @@ document.body.appendChild($_documentContainer.content);
 							stopDeterminate();
 						}
 					}, 500);
-				}
+				};
 
 				window.stopDeterminate = () => {
 					clearInterval(progressIntervalHandle);
 					progressIntervalHandle = null;
-				}
+				};
 
 				window.startIndeterminate = () => {
 					indeterminateProgressBars.forEach(progressBar => {
@@ -121,7 +114,7 @@ document.body.appendChild($_documentContainer.content);
 
 					indeterminateFinishButton.textContent = 'Force Finish';
 					indeterminateFinishButton.onclick = () => finishIndeterminate();
-				}
+				};
 
 				window.finishIndeterminate = () => {
 					indeterminateProgressBars[0].addEventListener('d2l-pdf-viewer-progress-bar-animation-complete', () => {
@@ -132,7 +125,7 @@ document.body.appendChild($_documentContainer.content);
 					indeterminateProgressBars.forEach(progressBar => {
 						progressBar.finish();
 					});
-				}
+				};
 			});
 		</script>
 	</body>

@@ -96,4 +96,4 @@ export class FocusManagementService {
 		}
 		return elems[index - 1];
 	}
-};
+}

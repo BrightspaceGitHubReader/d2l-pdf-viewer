@@ -1,13 +1,8 @@
 /**
 `d2l-pdf-viewer-progress-bar`
-Polymer-based web component progress bar
+LitElement-based web component progress bar
 
 @demo demo/d2l-pdf-viewer-progress-bar.html
-*/
-/*
-  FIXME(polymer-modulizer): the above comments were extracted
-  from HTML and may be out of place here. Review them and
-  then delete this comment!
 */
 import { css, html, LitElement } from 'lit-element/lit-element.js';
 import '@brightspace-ui/core/components/colors/colors.js';

@@ -2,7 +2,6 @@ import { css, html, LitElement } from 'lit-element/lit-element.js';
 import { LocalizeMixin } from '@brightspace-ui/core/mixins/localize-mixin.js';
 import '@brightspace-ui/core/components/icons/icon.js';
 import '@brightspace-ui/core/components/typography/styles.js';
-import 'd2l-polymer-behaviors/d2l-dom.js';
 import './d2l-pdf-viewer-toolbar-button.js';
 
 import { FocusManagementService } from './services/focus-management.js';
@@ -104,46 +103,46 @@ class D2LPdfViewerToolbar extends LocalizeMixin(LitElement) {
 		for await (const lang of langs) {
 			let translations;
 			switch (lang) {
-			case 'ar':
-				translations = await import('./lang/ar.js');
-				break;
-			case 'de':
-				translations = await import('./lang/de.js');
-				break;
-			case 'fr':
-			  translations = await import('./lang/fr.js');
-			  break;
-			case 'ja':
-				translations = await import('./lang/ja.js');
-				break;
-			case 'ko':
-				translations = await import('./lang/ko.js');
-				break;
-			case 'nb':
-				translations = await import('./lang/nb.js');
-				break;
-			case 'nl':
-				translations = await import('./lang/nl.js');
-				break;
-			case 'pt':
-				translations = await import('./lang/pt.js');
-				break;
-			case 'sv':
-				translations = await import('./lang/sv.js');
-				break;
-			case 'tr':
-				translations = await import('./lang/tr.js');
-				break;
-			case 'zh-tw':
-				translations = await import('./lang/zh-tw.js');
-				break;
-			case 'zh':
-				translations = await import('./lang/zh.js');
-				break;
-			case 'en':
-			default:
-				translations = await import('./lang/en.js');
-				break;
+				case 'ar':
+					translations = await import('./lang/ar.js');
+					break;
+				case 'de':
+					translations = await import('./lang/de.js');
+					break;
+				case 'fr':
+					translations = await import('./lang/fr.js');
+					break;
+				case 'ja':
+					translations = await import('./lang/ja.js');
+					break;
+				case 'ko':
+					translations = await import('./lang/ko.js');
+					break;
+				case 'nb':
+					translations = await import('./lang/nb.js');
+					break;
+				case 'nl':
+					translations = await import('./lang/nl.js');
+					break;
+				case 'pt':
+					translations = await import('./lang/pt.js');
+					break;
+				case 'sv':
+					translations = await import('./lang/sv.js');
+					break;
+				case 'tr':
+					translations = await import('./lang/tr.js');
+					break;
+				case 'zh-tw':
+					translations = await import('./lang/zh-tw.js');
+					break;
+				case 'zh':
+					translations = await import('./lang/zh.js');
+					break;
+				case 'en':
+				default:
+					translations = await import('./lang/en.js');
+					break;
 			}
 
 			if (translations && translations.val) {
@@ -248,7 +247,7 @@ class D2LPdfViewerToolbar extends LocalizeMixin(LitElement) {
 	}
 
 	get updateComplete() {
-		return Promise.resolve().then(async () => {
+		return Promise.resolve().then(async() => {
 			await super.updateComplete;
 
 			// @TODO @HACK @FIXME: Needed for tests as updateComplete is checked before
@@ -256,7 +255,7 @@ class D2LPdfViewerToolbar extends LocalizeMixin(LitElement) {
 			if (!this.toolbarButtons) {
 				await new Promise((resolve) => {
 					this._onFirstUpdate = resolve;
-				})
+				});
 			}
 
 			return Promise.all(this.toolbarButtons.map(button => button.updateComplete));

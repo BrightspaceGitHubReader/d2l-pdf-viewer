@@ -9,14 +9,6 @@
 		<script type="module" src="../../@polymer/iron-demo-helpers/demo-snippet.js"></script>
 		<script type="module" src="../../@brightspace-ui/core/components/typography/styles.js"></script>
 		<script type="module" src="../d2l-pdf-viewer.js"></script>
-		<!-- FIXME(polymer-modulizer):
-		These imperative modules that innerHTML your HTML are
-		a hacky way to be sure that any mixins in included style
-		modules are ready before any elements that reference them are
-		instantiated, otherwise the CSS @apply mixin polyfill won't be
-		able to expand the underlying CSS custom properties.
-		See: https://github.com/Polymer/polymer-modulizer/issues/154
-		-->
 		<script type="module">
 			const $_documentContainer = document.createElement('template');
 			$_documentContainer.innerHTML = `<custom-style>

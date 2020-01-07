@@ -3,6 +3,7 @@
 import { css, html, LitElement } from 'lit-element';
 import '@brightspace-ui/core/components/colors/colors.js';
 
+/* eslint-disable no-unused-vars */
 import { D2LPdfViewerProgressBarElement } from './d2l-pdf-viewer-progress-bar.js';
 import './d2l-pdf-viewer-toolbar.js';
 import { FullscreenService } from './services/fullscreen.js';
@@ -586,7 +587,7 @@ class D2LPdfViewerElement extends LitElement {
 		this.toolbar = this.shadowRoot.getElementById('toolbar');
 		this.progressBar = this.shadowRoot.getElementById('progressBar');
 
-		this.viewerContainer.addEventListener('pagesinit', (e) => this._onPagesInitEvent(e));
+		this.viewerContainer.addEventListener('pagesinit', () => this._onPagesInitEvent());
 		this.viewerContainer.addEventListener('pagechange', (e) => this._onPageChangeEvent(e));
 
 		this.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', () => this._onZoomInEvent());
@@ -838,7 +839,7 @@ class D2LPdfViewerElement extends LitElement {
 		});
 	}
 
-	_onPagesInitEvent(e) {
+	_onPagesInitEvent() {
 		this._pdfViewer.currentScaleValue = 'page-width';
 		this._pageScale = this._pdfViewer.currentScale;
 		this._onInteraction();
