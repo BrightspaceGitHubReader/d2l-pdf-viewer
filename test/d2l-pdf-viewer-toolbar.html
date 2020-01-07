@@ -23,69 +23,73 @@
 		</test-fixture>
 		<script type="module">
 import '../d2l-pdf-viewer-toolbar.js';
-describe('<d2l-pdf-viewer-toolbar>', function() {
+describe('<d2l-pdf-viewer-toolbar>', () => {
 	var toolbar;
 
-	describe('events', function() {
-		beforeEach(function() {
+	describe('events', () => {
+		beforeEach(async () => {
 			toolbar = fixture('basic');
+
+			await toolbar.updateComplete;
 		});
 
-		it('should fire d2l-pdf-viewer-toolbar-zoom-in when zoom in button is clicked', function(done) {
-			toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', function() {
+		it('should fire d2l-pdf-viewer-toolbar-zoom-in when zoom in button is clicked', (done) => {
+			toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', () => {
 				done();
 			});
-			MockInteractions.tap(toolbar.$.zoomInButton);
+			MockInteractions.tap(toolbar.shadowRoot.getElementById('zoomInButton'));
 		});
 
-		it('should fire d2l-pdf-viewer-toolbar-zoom-out when zoom out button is clicked', function(done) {
-			toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', function() {
+		it('should fire d2l-pdf-viewer-toolbar-zoom-out when zoom out button is clicked', (done) => {
+			toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', () => {
 				done();
 			});
-			MockInteractions.tap(toolbar.$.zoomOutButton);
+			MockInteractions.tap(toolbar.shadowRoot.getElementById('zoomOutButton'));
 		});
 
-		it('should fire d2l-pdf-viewer-toolbar-toggle-fullscreen when fullscreen button is clicked', function(done) {
-			toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', function() {
+		it('should fire d2l-pdf-viewer-toolbar-toggle-fullscreen when fullscreen button is clicked', (done) => {
+			toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', () => {
 				done();
 			});
-			MockInteractions.tap(toolbar.$.fullscreenButton);
+			MockInteractions.tap(toolbar.shadowRoot.getElementById('fullscreenButton'));
 		});
 	});
 
-	describe('properties', function() {
-		beforeEach(function() {
+	describe('properties', () => {
+		beforeEach(async () => {
 			toolbar = fixture('basic');
+
+			await toolbar.updateComplete;
 		});
 
-		it('should render all elements correctly', function() {
-			expect(toolbar.$.zoomOutButton.disabled).to.be.false;
-			expect(toolbar.$.zoomInButton.disabled).to.be.false;
-			expect(toolbar.$.fullscreenButton.disabled).to.be.false;
+		it('should render all elements correctly', () => {
+			expect(toolbar.shadowRoot.getElementById('zoomOutButton').disabled).to.be.false;
+			expect(toolbar.shadowRoot.getElementById('zoomInButton').disabled).to.be.false;
+			expect(toolbar.shadowRoot.getElementById('fullscreenButton').disabled).to.be.false;
 
-			expect(toolbar.$.pageNumber.textContent.trim()).to.equal('Page 4 / 10');
+			expect(toolbar.shadowRoot.getElementById('pageNumber').textContent.trim()).to.equal('Page 4 / 10');
 		});
 
-		it('should disable the "zoom in" button when pageScale >= maxPageScale', function(done) {
+		it('should disable the "zoom in" button when pageScale >= maxPageScale', (done) => {
 			toolbar.pageScale = toolbar.maxPageScale;
-			setTimeout(function() {
-				expect(toolbar.$.zoomInButton.disabled).to.be.true;
+			setTimeout(() => {
+				expect(toolbar.shadowRoot.getElementById('zoomInButton').disabled).to.be.true;
 				done();
 			});
 		});
 
-		it('should disable the "zoom out" button when pageScale <= minPageScale', function(done) {
+		it('should disable the "zoom out" button when pageScale <= minPageScale', (done) => {
 			toolbar.pageScale = toolbar.minPageScale;
-			setTimeout(function() {
-				expect(toolbar.$.zoomOutButton.disabled).to.be.true;
+			setTimeout(() => {
+				expect(toolbar.shadowRoot.getElementById('zoomOutButton').disabled).to.be.true;
 				done();
 			});
 		});
 
-		it('should disable the "fullscreen" button when fullscreenAvailable is false', function(done) {
+		it('should disable the "fullscreen" button when fullscreenAvailable is false', (done) => {
 			toolbar.fullscreenAvailable = false;
-			setTimeout(function() {
-				expect(toolbar.$.fullscreenButton.disabled).to.be.true;
+			setTimeout(() => {
+				expect(toolbar.shadowRoot.getElementById('fullscreenButton').disabled).to.be.true;
 				done();
 			});
 		});

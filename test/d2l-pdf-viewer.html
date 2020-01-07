@@ -34,19 +34,19 @@ class LoadingTaskMock {
 	}
 }
 
-describe('<d2l-pdf-viewer>', function() {
+describe('<d2l-pdf-viewer>', () => {
 	let pdfViewer;
 
-	describe('loading', function() {
-		beforeEach(function() {
+	describe('loading', () => {
+		beforeEach(() => {
 			pdfViewer = fixture('basic');
 		});
 
-		afterEach(function() {
+		afterEach(() => {
 			sinon.sandbox.restore();
 		});
 
-		it('should report the determinate progress when available', function(done) {
+		it('should report the determinate progress when available', (done) => {
 			const loadingTaskMock = new LoadingTaskMock();
 
 			sinon.sandbox.stub(pdf, 'getDocument', () => loadingTaskMock);
@@ -60,14 +60,14 @@ describe('<d2l-pdf-viewer>', function() {
 						total: 1000
 					});
 
-					expect(pdfViewer.$.progressBar.indeterminate).to.be.false;
-					expect(pdfViewer.$.progressBar.value).to.equal(val / 1000);
+					expect(pdfViewer.shadowRoot.getElementById('progressBar').indeterminate).to.be.false;
+					expect(pdfViewer.shadowRoot.getElementById('progressBar').value).to.equal(val / 1000);
 				});
 				done();
 			});
 		});
 
-		it('should use an indeterminate loading bar when total progress not available', function(done) {
+		it('should use an indeterminate loading bar when total progress not available', (done) => {
 			const loadingTaskMock = new LoadingTaskMock();
 
 			sinon.sandbox.stub(pdf, 'getDocument', () => loadingTaskMock);
@@ -80,11 +80,11 @@ describe('<d2l-pdf-viewer>', function() {
 					total: undefined
 				});
 
-				expect(pdfViewer.$.progressBar.indeterminate).to.be.true;
-				expect(pdfViewer.$.progressBar._indeterminateState).to.equal(0); // RESET
+				expect(pdfViewer.shadowRoot.getElementById('progressBar').indeterminate).to.be.true;
+				expect(pdfViewer.shadowRoot.getElementById('progressBar')._indeterminateState).to.equal(0); // RESET
 
 				setTimeout(() => {
-					expect(pdfViewer.$.progressBar._indeterminateState).to.equal(1); // IN_PROGRESS
+					expect(pdfViewer.shadowRoot.getElementById('progressBar')._indeterminateState).to.equal(1); // IN_PROGRESS
 					done();
 				}, 100);
 			});

@@ -12,40 +12,29 @@ export class FocusManagementService {
 	constructor(opts) {
 		this.opts = opts;
 
-		this.arrowKeysDirection = 'leftright';
-		this.arrowKeysNoWrap = false;
-
 		this.opts.focusContainer.addEventListener('keydown', (e) => this._handleArrowKeys(e));
 	}
 
 	async focusablesProvider() {
-		if (this.opts.focusablesProvider) {
-			return await this.opts.focusablesProvider();
-		}
-
-		return [...this.shadowRoot.querySelectorAll('.d2l-arrowkeys-focusable')];
+		return await this.opts.focusablesProvider();
 	}
 
 	_handleArrowKeys(e) {
 		const target = e.path[0];
 		const dir = getComputedStyle(this.opts.focusContainer).direction;
 
-		if (this.arrowKeysDirection.indexOf('left') >= 0 && e.keyCode === keyCodes.LEFT) {
+		if (e.keyCode === keyCodes.LEFT) {
 			if (dir === 'rtl') {
 				this._focusNext(target);
 			} else {
 				this._focusPrevious(target);
 			}
-		} else if (this.arrowKeysDirection.indexOf('right') >= 0 && e.keyCode === keyCodes.RIGHT) {
+		} else if (e.keyCode === keyCodes.RIGHT) {
 			if (dir === 'rtl') {
 				this._focusPrevious(target);
 			} else {
 				this._focusNext(target);
 			}
-		} else if (this.arrowKeysDirection.indexOf('up') >= 0 && e.keyCode === keyCodes.UP) {
-			this._focusPrevious(target);
-		} else if (this.arrowKeysDirection.indexOf('down') >= 0 && e.keyCode === keyCodes.DOWN) {
-			this._focusNext(target);
 		} else if (e.keyCode === keyCodes.HOME) {
 			this._focusFirst();
 		} else if (e.keyCode === keyCodes.END) {
@@ -93,7 +82,6 @@ export class FocusManagementService {
 
 		const index = elems.indexOf(elem);
 		if (index === elems.length - 1) {
-			if (this.arrowKeysNoWrap) return;
 			return elems[0];
 		}
 		return elems[index + 1];
@@ -104,7 +92,6 @@ export class FocusManagementService {
 
 		const index = elems.indexOf(elem);
 		if (index === 0) {
-			if (this.arrowKeysNoWrap) return;
 			return elems[elems.length - 1];
 		}
 		return elems[index - 1];

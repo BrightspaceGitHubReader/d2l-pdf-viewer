@@ -37,54 +37,56 @@
 import '../d2l-pdf-viewer-progress-bar.js';
 let elem;
 
-describe('smoke tests', function() {
-	beforeEach(function() {
+describe('smoke tests', () => {
+	beforeEach(async () => {
 		elem = fixture('indeterminate-basic');
+
+		await elem.updateComplete;
 	});
 
-	it('should instantiate the element', function() {
-		expect(elem.is).to.equal('d2l-pdf-viewer-progress-bar');
-	});
-
-	it('should have the role "progressbar"', function() {
+	it('should have the role "progressbar"', () => {
 		expect(elem.getAttribute('role')).to.equal('progressbar');
 	});
 });
 
-context('indeterminate progress', function() {
-	describe('properties and attributes', function() {
-		beforeEach(function() {
+context('indeterminate progress', () => {
+	describe('properties and attributes', () => {
+		beforeEach(() => {
 			elem = fixture('indeterminate-basic');
 		});
 
-		it('should not have any determine ARIA attributes set"', function() {
+		it('should not have any determine ARIA attributes set"', () => {
 			expect(elem.hasAttribute('aria-valuemin')).to.be.false;
 			expect(elem.hasAttribute('aria-valuemax')).to.be.false;
 			expect(elem.hasAttribute('aria-valuenow')).to.be.false;
 		});
 
-		it('should default "autostart" to false', function() {
+		it('should default "autostart" to false', () => {
 			expect(elem.autostart).to.be.false;
 			expect(elem.hasAttribute('autostart')).to.be.false;
 		});
 
-		it('should reflect "autostart" property change to attribute', function() {
+		it('should reflect "autostart" property change to attribute', async () => {
 			elem.autostart = true;
+			await elem.updateComplete;
+
 			expect(elem.hasAttribute('autostart')).to.be.true;
 		});
 
-		it('should reflect "autostart" attribute change to property', function() {
+		it('should reflect "autostart" attribute change to property', () => {
 			elem.setAttribute('autostart', 'autostart');
 			expect(elem.autostart).to.be.true;
 		});
 	});
 
-	describe('default', function() {
-		beforeEach(function() {
+	describe('default', () => {
+		beforeEach(async () => {
 			elem = fixture('indeterminate-basic');
+
+			await elem.updateComplete;
 		});
 
-		it('should start when start() is called', function(done) {
+		it('should start when start() is called', (done) => {
 			elem.start();
 
 			setTimeout(() => {
@@ -93,7 +95,7 @@ context('indeterminate progress', function() {
 			}, 100);
 		});
 
-		it('should not go to 99% if finish() is called first', function(done) {
+		it('should not go to 99% if finish() is called first', (done) => {
 			elem.start();
 			elem.finish();
 
@@ -105,19 +107,21 @@ context('indeterminate progress', function() {
 
 	});
 
-	describe('set', function() {
-		beforeEach(function() {
+	describe('set', () => {
+		beforeEach(async () => {
 			elem = fixture('indeterminate-autostart');
+
+			await elem.updateComplete;
 		});
 
-		it('should start on its own after 100ms', function(done) {
+		it('should start on its own after 100ms', (done) => {
 			setTimeout(() => {
 				expect(elem._progress).to.eql(99);
 				done();
 			}, 100);
 		});
 
-		it('should go to 100% if finish() is called after', function(done) {
+		it('should go to 100% if finish() is called after', (done) => {
 			elem.finish();
 			setTimeout(() => {
 				expect(elem._progress).to.eql(100);
@@ -125,96 +129,106 @@ context('indeterminate progress', function() {
 			}, 50);
 		});
 
-		it('should have "autostart" set to true', function() {
+		it('should have "autostart" set to true', () => {
 			expect(elem.autostart).to.be.true;
 			expect(elem.hasAttribute('autostart')).to.be.true;
 		});
 	});
 
-	describe('starting and finishing', function() {
-		beforeEach(function() {
+	describe('starting and finishing', () => {
+		beforeEach(async () => {
 			elem = fixture('indeterminate-basic');
+
+			await elem.updateComplete;
 		});
 
-		it('should not auto-start', function() {
+		it('should not auto-start', () => {
 			expect(elem._progress).to.eql(0);
 		});
 
-		it('should go to 100% when finish is called', function() {
+		it('should go to 100% when finish is called', () => {
 			elem.finish();
 			expect(elem._progress).to.eql(100);
 		});
 	});
 });
 
-context('determinate progress', function() {
-	describe('properties', function() {
-		beforeEach(function() {
+context('determinate progress', () => {
+	describe('properties', () => {
+		beforeEach(async () => {
 			elem = fixture('determinate-basic');
+
+			await elem.updateComplete;
 		});
 
-		it('should have a default "max" of 1', function() {
+		it('should have a default "max" of 1', () => {
 			expect(elem.max).to.equal(1);
 			expect(elem.getAttribute('aria-valuemax')).to.equal('1');
 		});
 
-		it('should have a default "value" of 0', function() {
+		it('should have a default "value" of 0', () => {
 			expect(elem.value).to.equal(0);
 			expect(elem.getAttribute('aria-valuenow')).to.equal('0');
 		});
 
-		it('should reflect "max" as "aria-valuemax" when set by property', function(done) {
+		it('should reflect "max" as "aria-valuemax" when set by property', async () => {
 			elem.max = 1234;
 
-			setTimeout(() => {
-				expect(elem.getAttribute('aria-valuemax')).to.equal('1234');
-				done();
-			});
+			await elem.updateComplete;
+
+			expect(elem.getAttribute('aria-valuemax')).to.equal('1234');
 		});
 
-		it('should reflect "value" as "aria-valuenow" when set by property', function(done) {
+		it('should reflect "value" as "aria-valuenow" when set by property', async () => {
 			elem.value = 0.5;
 
-			setTimeout(() => {
-				expect(elem.getAttribute('aria-valuenow')).to.equal('0.5');
-				done();
-			});
+			await elem.updateComplete;
+
+			expect(elem.getAttribute('aria-valuenow')).to.equal('0.5');
 		});
 
-		it('should clamp "aria-valuenow" if greater than "max"', function() {
+		it('should clamp "aria-valuenow" if greater than "max"', async () => {
 			elem.value = 1000;
+
+			await elem.updateComplete;
 
 			expect(elem.getAttribute('aria-valuenow')).to.equal('1');
 		});
 
-		it('should reset "max" to 1 if invalid', function() {
+		it('should reset "max" to 1 if invalid', async () => {
 			elem.max = 0;
+
+			await elem.updateComplete;
 
 			expect(elem.max).to.equal(1);
 			expect(elem.getAttribute('aria-valuemax')).to.equal('1');
 		});
 	});
 
-	describe('attributes', function() {
-		beforeEach(function() {
+	describe('attributes', () => {
+		beforeEach(async () => {
 			elem = fixture('determinate-configured');
+
+			await elem.updateComplete;
 		});
 
-		it('should reflect "max" as "aria-valuemax" when set by attribute', function() {
+		it('should reflect "max" as "aria-valuemax" when set by attribute', () => {
 			expect(elem.getAttribute('aria-valuemax')).to.equal('20');
 		});
 
-		it('should reflect "value" as "aria-valuenow" when set by attribute', function() {
+		it('should reflect "value" as "aria-valuenow" when set by attribute', () => {
 			expect(elem.getAttribute('aria-valuenow')).to.equal('5');
 		});
 	});
 
-	describe('starting and finishing', function() {
-		beforeEach(function() {
+	describe('starting and finishing', () => {
+		beforeEach(async () => {
 			elem = fixture('determinate-basic');
+
+			await elem.updateComplete;
 		});
 
-		it('should not auto-start', function() {
+		it('should not auto-start', () => {
 			expect(elem._indeterminateState).to.eql(0);
 		});
 	});

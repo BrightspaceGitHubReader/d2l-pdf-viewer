@@ -160,6 +160,8 @@ class D2LPdfViewerToolbar extends LocalizeMixin(LitElement) {
 			? 'd2l-tier1:smallscreen'
 			: 'd2l-tier1:fullscreen';
 
+		this.hasRendered = true;
+
 		return html`
 			<div class="outer-container">
 				<div class="toolbar-container">
@@ -235,6 +237,30 @@ class D2LPdfViewerToolbar extends LocalizeMixin(LitElement) {
 
 	connectedCallback() {
 		super.connectedCallback();
+	}
+
+	firstUpdated() {
+		this.toolbarButtons = [...this.shadowRoot.querySelectorAll('d2l-pdf-viewer-toolbar-button')];
+
+		if (this._onFirstUpdate) {
+			this._onFirstUpdate();
+		}
+	}
+
+	get updateComplete() {
+		return Promise.resolve().then(async () => {
+			await super.updateComplete;
+
+			// @TODO @HACK @FIXME: Needed for tests as updateComplete is checked before
+			// first render, so no guarantee child elements exist.
+			if (!this.toolbarButtons) {
+				await new Promise((resolve) => {
+					this._onFirstUpdate = resolve;
+				})
+			}
+
+			return Promise.all(this.toolbarButtons.map(button => button.updateComplete));
+		});
 	}
 
 	_zoomOutButtonDisabled(pageScale, minPageScale) {

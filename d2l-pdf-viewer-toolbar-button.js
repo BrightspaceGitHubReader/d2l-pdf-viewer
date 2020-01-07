@@ -73,7 +73,8 @@ class D2LPdfViewerToolbarButtonElement extends LitElement {
 
 	render() {
 		return html`
-			<d2l-icon icon=${this.icon}></d2l-icon>`;
+			<d2l-icon icon=${this.icon}></d2l-icon>
+		`;
 	}
 
 	updated(changed) {

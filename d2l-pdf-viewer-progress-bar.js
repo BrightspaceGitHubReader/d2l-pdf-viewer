@@ -98,7 +98,7 @@ export class D2LPdfViewerProgressBarElement extends LitElement {
 		super();
 
 		this.indeterminate = false;
-		this.autostart = true;
+		this.autostart = false;
 		this.max = 1;
 		this.value = 0;
 
@@ -114,6 +114,7 @@ export class D2LPdfViewerProgressBarElement extends LitElement {
 
 		this._progress = 0;
 		this._updateProgressBar(this.indeterminate, this.autostart);
+		this._onProgressChanged(this.value, this.max);
 	}
 
 	/**
@@ -141,7 +142,7 @@ export class D2LPdfViewerProgressBarElement extends LitElement {
 	}
 
 	_setIndeterminateState(state) {
-		if (!this.indeterminate) {
+		if (!this.indeterminate || !this.progressBar) {
 			return;
 		}
 
