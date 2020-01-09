@@ -510,6 +510,9 @@ Polymer({
 			type: Boolean,
 			value: false
 		},
+		pdfJsGetDocumentParams: {
+			type: Object
+		},
 		_isFullscreen: {
 			type: Boolean,
 			value: false
@@ -787,9 +790,9 @@ Polymer({
 		this._setPdfNameFromUrl(src);
 
 		destroyLoadingTask.then(() => {
-			const loadingTask = this._loadingTask = this._pdfJsLib.getDocument({
-				url: src
-			});
+			const params = this.pdfJsGetDocumentParams || {};
+			params.url = src;
+			const loadingTask = this._loadingTask = this._pdfJsLib.getDocument(params);
 
 			progressBar.hidden = false;
 

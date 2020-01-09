@@ -12,13 +12,10 @@ bower install d2l-pdf-viewer
 
 ## Usage
 
-Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill (for browsers who don't natively support web components), then import `d2l-pdf-viewer.html`:
+Import `d2l-pdf-viewer`:
 
-```html
-<head>
-	<script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-	<link rel="import" href="bower_components/d2l-pdf-viewer/d2l-pdf-viewer.html">
-</head>
+```js
+import 'd2l-pdf-viewer/d2l-pdf-viewer.js';
 ```
 
 <!---
@@ -43,8 +40,22 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill (fo
 ```
 -->
 ```html
-<d2l-pdf-viewer>My element</d2l-pdf-viewer>
+<d2l-pdf-viewer
+  src="my-pdf-url"
+  loader="script"
+  use-cdn
+  pdf-js-get-document-params="<params go here>">
+</d2l-pdf-viewer>
 ```
+
+### Properties
+
+- `src`: string URI of pdf you want to dipslay
+- `loader`: `"import"` for pdfjs as an es6 module, or `"script"` for non-module pdfjs
+- `use-cdn`: boolean flag to use remote pdfjs libraries instead of local. Not supported for `loader="import"` (yet)
+- `pdf-js-worker-src`: string URI pointing to a pdfjs worker script
+- `pdf-js-get-document-params`: object of parameters to be passed into `getDocument`. This can contain whatever you want, but we will overwrite `url` with the value of `src`
+- `pdfjs-base-path`: specify local folder to find pdfjs files in, if not using `use-cdn`. Overrides default of `${import.meta.url}/../node_modules/pdfjs-dist`. Not supported for `loader="import"`.
 
 ## Developing, Testing and Contributing
 
