@@ -790,7 +790,8 @@ Polymer({
 		this._setPdfNameFromUrl(src);
 
 		destroyLoadingTask.then(() => {
-			const params = this.pdfJsGetDocumentParams || {};
+			const 
+			const params = JSON.parse(this.pdfJsGetDocumentParams) || {};
 			params.url = src;
 			const loadingTask = this._loadingTask = this._pdfJsLib.getDocument(params);
 
