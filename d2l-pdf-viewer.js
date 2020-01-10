@@ -626,15 +626,15 @@ Polymer({
 	},
 	_loadScripts: function() {
 		const basePath = this.useCdn
-			? 'https://s.brightspace.com/lib/pdf.js/2.0.943'
+			? 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.3.200'
 			: this.pdfjsBasePath || `${import.meta.url}/../node_modules/pdfjs-dist`;
 
 		if (!this._workerSrc) {
-			this._workerSrc = `${basePath}/build/pdf.worker.min.js`;
+			this._workerSrc = `${basePath}/pdf.worker.min.js`;
 		}
 
-		return this._loadScript(`${basePath}/build/pdf.min.js`)
-			.then(() => this._loadScript(`${basePath}/web/pdf_viewer.js`))
+		return this._loadScript(`${basePath}/pdf.min.js`)
+			.then(() => this._loadScript(`${basePath}/pdf_viewer.js`))
 			.then(() => {
 				return {
 					pdfjsLib,

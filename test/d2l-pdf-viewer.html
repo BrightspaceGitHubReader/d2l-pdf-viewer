@@ -102,8 +102,7 @@ describe('<d2l-pdf-viewer>', function() {
 			it('should work with an async getter for pdfJsGetDocumentParams', done => {
 				const testParams = {
 					withCredentials: true,
-					data: 'erase',
-					range: 'me'
+					url: 'erase me'
 				};
 
 				sinon.sandbox.stub(pdf, 'getDocument', params => {
@@ -122,8 +121,7 @@ describe('<d2l-pdf-viewer>', function() {
 			it('should work with a DocumentInitParameters object for pdfJsGetDocumentParams', done => {
 				const testParams = {
 					withCredentials: true,
-					data: 'erase',
-					range: 'me'
+					url: 'erase me'
 				};
 
 				sinon.sandbox.stub(pdf, 'getDocument', params => {
