@@ -807,8 +807,6 @@ Polymer({
 		}).then(params => {
 			params = params || {};
 			params.url = src;
-			params.data = undefined;
-			params.range = undefined;
 			const loadingTask = this._loadingTask = this._pdfJsLib.getDocument(params);
 
 			progressBar.hidden = false;

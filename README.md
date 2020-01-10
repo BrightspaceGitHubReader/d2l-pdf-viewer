@@ -54,7 +54,7 @@ import 'd2l-pdf-viewer/d2l-pdf-viewer.js';
 - `loader`: `"import"` for pdfjs as an es6 module, or `"script"` for non-module pdfjs
 - `use-cdn`: boolean flag to use remote pdfjs libraries instead of local. Not supported for `loader="import"` (yet)
 - `pdf-js-worker-src`: string URI pointing to a pdfjs worker script
-- `pdf-js-get-document-params`: async getter that returns `DocumentInitParameters` (or it can be set with just a `DocumentInitParameters` object) to be passed into `getDocument`. This can contain whatever you want (eg. `httpHeaders` or `withCredentials`), but `data`, `range` and `url` will be overwritten. You can find the params you can set [here](https://mozilla.github.io/pdf.js/api/draft/module-pdfjsLib.html#~DocumentInitParameters).
+- `pdf-js-get-document-params`: async getter that returns `DocumentInitParameters` (or it can be set with just a `DocumentInitParameters` object) to be passed into `getDocument`. This can contain whatever you want (eg. `httpHeaders` or `withCredentials`), but `url` will be overwritten. However, the behavior of setting any other parameter that loads PDF data other than `url` is undefined. Only use the `src` property to specify what to load. You can find the params that can be set [here](https://mozilla.github.io/pdf.js/api/draft/module-pdfjsLib.html#~DocumentInitParameters).
 - `pdfjs-base-path`: specify local folder to find pdfjs files in, if not using `use-cdn`. Overrides default of `${import.meta.url}/../node_modules/pdfjs-dist`. Not supported for `loader="import"`.
 
 ## Developing, Testing and Contributing
