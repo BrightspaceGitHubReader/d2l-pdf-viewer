@@ -6,6 +6,7 @@ import 'd2l-colors/d2l-colors.js';
 import 'fullscreen-api/fullscreen-api.js';
 import './d2l-pdf-viewer-progress-bar.js';
 import './d2l-pdf-viewer-toolbar.js';
+import { assertTypeParameterDeclaration } from 'babel-types';
 
 const $_documentContainer = document.createElement('template');
 
@@ -511,7 +512,10 @@ Polymer({
 			value: false
 		},
 		pdfJsGetDocumentParams: {
-			type: Object
+			type: Object,
+			value: function() {
+				return {};
+			}
 		},
 		_isFullscreen: {
 			type: Boolean,
@@ -558,7 +562,7 @@ Polymer({
 		'd2l-pdf-viewer-button-interaction': '_onInteraction'
 	},
 	observers: [
-		'_srcChanged(isAttached, src)'
+		'_srcChanged(isAttached, src, pdfJsGetDocumentParams)'
 	],
 	ready: function() {
 		this._boundListeners = false;
@@ -769,7 +773,7 @@ Polymer({
 			}, 100);
 		}
 	},
-	_srcChanged: function(isAttached, src) {
+	_srcChanged: function(isAttached, src, pdfJsGetDocumentParams) {
 		if (!isAttached || !src) {
 			return;
 		}
@@ -789,10 +793,21 @@ Polymer({
 
 		this._setPdfNameFromUrl(src);
 
-		destroyLoadingTask.then(() => {
-			const 
-			const params = JSON.parse(this.pdfJsGetDocumentParams) || {};
+		let paramGetter;
+		if (typeof pdfJsGetDocumentParams === Function) {
+			paramGetter =  pdfJsGetDocumentParams;
+		} else {
+			paramGetter = Promise.resolve(pdfJsGetDocumentParams);
+		}
+
+		// TODO: DELET THIS
+		console.log(JSON.stringify(pdfJsGetDocumentParams)); //eslint-disable-line
+
+		destroyLoadingTask.then(paramGetter).then(params => {
+			params = params || {};
 			params.url = src;
+			params.data = undefined;
+			params.range = undefined;
 			const loadingTask = this._loadingTask = this._pdfJsLib.getDocument(params);
 
 			progressBar.hidden = false;

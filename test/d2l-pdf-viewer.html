@@ -89,6 +89,58 @@ describe('<d2l-pdf-viewer>', function() {
 				}, 100);
 			});
 		});
+
+		describe('getDocument param types', done => {
+			beforeEach(function() {
+				pdfViewer = fixture('basic');
+			});
+			
+			afterEach(() => {
+				sinon.sandbox.restore();
+			});
+
+			it('should work with an async getter for pdfJsGetDocumentParams', done => {
+				const testParams = {
+					withCredentials: true,
+					data: 'erase',
+					range: 'me'
+				};
+
+				sinon.sandbox.stub(pdf, 'getDocument', params => {
+					expect(params.withCredentials).to.be.true;
+					expect(params.data).to.equal(undefined);
+					expect(params.range).to.equal(undefined);
+					expect(params.url).to.equal('https://some.dummy.url/and-a-fake.pdf');
+					done();
+					return new LoadingTaskMock();
+				});
+
+				const paramGetter = () => Promise.resolve(testParams);
+
+				pdfViewer.pdfJsGetDocumentParams = paramGetter;
+				pdfViewer.src = 'https://some.dummy.url/and-a-fake.pdf';
+			});
+
+			it('should work with a DocumentInitParameters object for pdfJsGetDocumentParams', done => {
+				const testParams = {
+					withCredentials: true,
+					data: 'erase',
+					range: 'me'
+				};
+
+				sinon.sandbox.stub(pdf, 'getDocument', params => {
+					expect(params.withCredentials).to.be.true;
+					expect(params.data).to.equal(undefined);
+					expect(params.range).to.equal(undefined);
+					expect(params.url).to.equal('https://some.dummy.url/and-a-fake.pdf');
+					done();
+					return new LoadingTaskMock();
+				});
+
+				pdfViewer.pdfJsGetDocumentParams = testParams;
+				pdfViewer.src = 'https://some.dummy.url/and-a-fake.pdf';
+			});
+		});
 	});
 });
 </script>
