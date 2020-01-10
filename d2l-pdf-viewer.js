@@ -6,7 +6,6 @@ import 'd2l-colors/d2l-colors.js';
 import 'fullscreen-api/fullscreen-api.js';
 import './d2l-pdf-viewer-progress-bar.js';
 import './d2l-pdf-viewer-toolbar.js';
-import { assertTypeParameterDeclaration } from 'babel-types';
 
 const $_documentContainer = document.createElement('template');
 
