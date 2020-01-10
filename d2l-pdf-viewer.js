@@ -630,10 +630,10 @@ Polymer({
 			: this.pdfjsBasePath || `${import.meta.url}/../node_modules/pdfjs-dist`;
 
 		if (!this._workerSrc) {
-			this._workerSrc = `${basePath}/pdf.worker.min.js`;
+			this._workerSrc = `${basePath}/pdf.worker.js`;
 		}
 
-		return this._loadScript(`${basePath}/pdf.min.js`)
+		return this._loadScript(`${basePath}/pdf.js`)
 			.then(() => this._loadScript(`${basePath}/pdf_viewer.js`))
 			.then(() => {
 				return {
