@@ -792,8 +792,6 @@ Polymer({
 
 		this._setPdfNameFromUrl(src);
 
-		debugger;
-
 		let paramGetter;
 		if (typeof pdfJsGetDocumentParams === 'function') {
 			paramGetter =  pdfJsGetDocumentParams;
@@ -807,7 +805,6 @@ Polymer({
 		destroyLoadingTask.then(() => {
 			return paramGetter();
 		}).then(params => {
-			debugger;
 			params = params || {};
 			params.url = src;
 			params.data = undefined;
