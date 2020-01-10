@@ -108,8 +108,6 @@ describe('<d2l-pdf-viewer>', function() {
 
 				sinon.sandbox.stub(pdf, 'getDocument', params => {
 					expect(params.withCredentials).to.be.true;
-					expect(params.data).to.equal(undefined);
-					expect(params.range).to.equal(undefined);
 					expect(params.url).to.equal('https://some.dummy.url/and-a-fake.pdf');
 					done();
 					return new LoadingTaskMock();
@@ -130,8 +128,6 @@ describe('<d2l-pdf-viewer>', function() {
 
 				sinon.sandbox.stub(pdf, 'getDocument', params => {
 					expect(params.withCredentials).to.be.true;
-					expect(params.data).to.equal(undefined);
-					expect(params.range).to.equal(undefined);
 					expect(params.url).to.equal('https://some.dummy.url/and-a-fake.pdf');
 					done();
 					return new LoadingTaskMock();

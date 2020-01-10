@@ -802,10 +802,10 @@ Polymer({
 		// TODO: DELET THIS
 		console.log(JSON.stringify(pdfJsGetDocumentParams)); //eslint-disable-line
 
-		destroyLoadingTask.then(() => {
-			return paramGetter();
-		}).then(params => {
+		destroyLoadingTask.then(paramGetter).then(params => {
 			params = params || {};
+			params.range = undefined;
+			params.data = undefined;
 			params.url = src;
 			const loadingTask = this._loadingTask = this._pdfJsLib.getDocument(params);
 
