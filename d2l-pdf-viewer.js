@@ -792,17 +792,22 @@ Polymer({
 
 		this._setPdfNameFromUrl(src);
 
+		debugger;
+
 		let paramGetter;
-		if (typeof pdfJsGetDocumentParams === Function) {
+		if (typeof pdfJsGetDocumentParams === 'function') {
 			paramGetter =  pdfJsGetDocumentParams;
 		} else {
-			paramGetter = Promise.resolve(pdfJsGetDocumentParams);
+			paramGetter = () => Promise.resolve(pdfJsGetDocumentParams);
 		}
 
 		// TODO: DELET THIS
 		console.log(JSON.stringify(pdfJsGetDocumentParams)); //eslint-disable-line
 
-		destroyLoadingTask.then(paramGetter).then(params => {
+		destroyLoadingTask.then(() => {
+			return paramGetter();
+		}).then(params => {
+			debugger;
 			params = params || {};
 			params.url = src;
 			params.data = undefined;
