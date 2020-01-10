@@ -804,8 +804,6 @@ Polymer({
 
 		destroyLoadingTask.then(paramGetter).then(params => {
 			params = params || {};
-			params.range = undefined;
-			params.data = undefined;
 			params.url = src;
 			const loadingTask = this._loadingTask = this._pdfJsLib.getDocument(params);
 
