@@ -462,6 +462,8 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-pdf-viewer">
 			max-page-scale="[[maxPageScale]]"
 			fullscreen-available="[[_isFullscreenAvailable]]"
 			is-fullscreen="[[_isFullscreen]]"
+			enable-print="[[enablePrint]]"
+			enable-download="[[_checkDownloadEnabled(enableDownload, _downloadManager)]]"
 			show$="[[_showToolbar]]">
 		</d2l-pdf-viewer-toolbar>
 		<div id="viewerContainer">
@@ -540,6 +542,14 @@ Polymer({
 			type: Boolean,
 			value: false
 		},
+		enablePrint: {
+			type: Boolean,
+			value: false
+		},
+		enableDownload: {
+			type: Boolean,
+			value: false
+		},
 		_isFullscreen: {
 			type: Boolean,
 			value: false
@@ -572,7 +582,8 @@ Polymer({
 		_showToolbar: {
 			type: Boolean,
 			computed: '_computeShowToolbar(_isLoaded, _hasRecentInteraction)'
-		}
+		},
+		_downloadManager: Object
 	},
 	listeners: {
 		'mouseenter': '_onMouseEnter',
@@ -665,6 +676,7 @@ Polymer({
 					LinkTarget: pdfjsLib.LinkTarget,
 					PDFLinkService: pdfjsViewer.PDFLinkService,
 					PDFViewer: pdfjsViewer.PDFViewer,
+					DownloadManager: pdfjsViewer.DownloadManager
 				};
 			});
 	},
@@ -684,6 +696,7 @@ Polymer({
 		LinkTarget,
 		PDFViewer,
 		PDFLinkService,
+		DownloadManager
 	}) {
 		this._pdfJsLib = pdfjsLib;
 
@@ -698,10 +711,15 @@ Polymer({
 			externalLinkTarget: LinkTarget.BLANK
 		});
 
+		this._downloadManager = DownloadManager
+			? new DownloadManager(false)
+			: null;
+
 		this._pdfViewer = new PDFViewer({
 			container: this.$.viewerContainer,
 			linkService: this._pdfLinkService,
 			useOnlyCssZoom: true, // Use CSS zooming only, as default zoom rendering in (modularized?) pdfjs-dist is buggy
+			...(!!this._downloadManager && { downloadManager: this._downloadManager })
 		});
 
 		this._pdfLinkService.setViewer(this._pdfViewer);
@@ -732,6 +750,8 @@ Polymer({
 		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
 		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
 		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-print', this._onPrintEvent);
+		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-download', this._onDownloadEvent);
 		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 		this.$.toolbar.removeEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
@@ -749,6 +769,8 @@ Polymer({
 			this._onNextPageEvent = this._onNextPageEvent.bind(this);
 			this._onZoomInEvent = this._onZoomInEvent.bind(this);
 			this._onZoomOutEvent = this._onZoomOutEvent.bind(this);
+			this._onPrintEvent = this._onPrintEvent.bind(this);
+			this._onDownloadEvent = this._onDownloadEvent.bind(this);
 			this._onPageNumberChangedEvent = this._onPageNumberChangedEvent.bind(this);
 			this._onFullscreenEvent = this._onFullscreenEvent.bind(this);
 			this._onProgressAnimationCompleteEvent = this._onProgressAnimationCompleteEvent.bind(this);
@@ -768,6 +790,8 @@ Polymer({
 		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-next', this._onNextPageEvent);
 		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-in', this._onZoomInEvent);
 		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-zoom-out', this._onZoomOutEvent);
+		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-print', this._onPrintEvent);
+		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-download', this._onDownloadEvent);
 		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-page-change', this._onPageNumberChangedEvent);
 		this.$.toolbar.addEventListener('d2l-pdf-viewer-toolbar-toggle-fullscreen', this._onFullscreenEvent);
 
@@ -889,6 +913,16 @@ Polymer({
 		this._addDeltaZoom(-0.1);
 		this._onInteraction();
 	},
+	_onPrintEvent: function() {
+		if (this.src) {
+			window.open(this.src, '_blank');
+		}
+	},
+	_onDownloadEvent: function() {
+		if (this.src) {
+			this._downloadManager.downloadUrl(this.src, this._pdfName);
+		}
+	},
 	_onFullscreenEvent: function() {
 		if (!this._pdfViewer) {
 			return;
@@ -999,5 +1033,8 @@ Polymer({
 		}
 
 		this._pdfName = pdfName;
+	},
+	_checkDownloadEnabled(enableDownload, downloadManager) {
+		return enableDownload && downloadManager;
 	}
 });
