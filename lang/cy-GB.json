@@ -1,0 +1,13 @@
+{
+   "downloadLabel" : "Download",
+   "downloadTitle" : "Download",
+   "pageOfPages" : "Page {pageNumber} / {pagesCount}",
+   "presentationModeLabel" : "Presentation Mode",
+   "presentationModeTitle" : "Switch to Presentation Mode",
+   "printLabel" : "Open new tab for printing",
+   "printTitle" : "Open new tab for printing",
+   "zoomInLabel" : "Zoom In",
+   "zoomInTitle" : "Zoom In",
+   "zoomOutLabel" : "Zoom Out",
+   "zoomOutTitle" : "Zoom Out"
+}
